@@ -1188,8 +1188,16 @@ def add_heat_sector(db_map : DatabaseMapping, db_source : DatabaseMapping, confi
                 # checking hard-coding conditions
                 if "technology" in entity_class_elements and definition_condition == True:
                     for index_in_class in [i for i in range(len(entity_class_elements)) if entity_class_elements[i]=="technology"]:
-                        if sum(sum(region_params["technology"]["units_existing"][entity_names[index_in_class]][poly][alternative]["data"].values()) for alternative in region_params["technology"]["units_existing"][entity_names[index_in_class]][poly]) == 0.0 and config["user"]["technology"][entity_names[index_in_class]]["investment_method"] == "not_allowed":
-                            definition_condition *= False
+                        tech_name = entity_names[index_in_class]
+                        existing_dict = region_params.get("technology", {}).get("units_existing", {}).get(tech_name, {})
+                        user_tech = config["user"]["technology"].get(tech_name, {})
+                        investment_method = user_tech.get("investment_method")
+                        if investment_method == "not_allowed":
+                            if existing_dict:
+                                if sum(sum(existing_dict[poly][alternative]["data"].values()) for alternative in existing_dict.get(poly, {})) == 0.0:
+                                    definition_condition *= False
+                            else:
+                                definition_condition *= False
 
                 if definition_condition == True:
                     for entity_class_target in config["sys"][db_name]["entities"][entity_class]:
@@ -1209,7 +1217,11 @@ def add_heat_sector(db_map : DatabaseMapping, db_source : DatabaseMapping, confi
                                 for param_target in param_list:
                                     entity_source_name = "__".join([entity_names[i-1] for k in param_list[param_target][2] for i in k])
                                     entity_target_name = tuple(["__".join([entity_target_names[i-1] for i in k]) for k in param_list[param_target][3]])
-                                    add_parameter_value(db_map,entity_class_target,param_target,"Base",entity_target_name,config["user"][param_list[param_target][0]][entity_source_name][param_list[param_target][1]])
+                                    user_section = config["user"].get(param_list[param_target][0], {})
+                                    if entity_source_name in user_section:
+                                        add_parameter_value(db_map,entity_class_target,param_target,"Base",entity_target_name,user_section[entity_source_name][param_list[param_target][1]])
+                                    else:
+                                        print(f"WARNING: No user config found for '{entity_source_name}', skipping parameter '{param_target}'")
 
                         # Default Parameters
                         if entity_class in config["sys"][db_name]["parameters"]["default"]:
@@ -1314,9 +1326,17 @@ def add_cargo_sector(db_map : DatabaseMapping, db_source : DatabaseMapping, conf
                                         value_param = param_list[param_source][1]*value_["parsed_value"] if value_["type"] != "map" else {"type":"map","index_type":"str","index_name":"period","data":{key:param_list[param_source][1]*item for key,item in dict(json.loads(value_["value"])["data"]).items()}}
                                         add_parameter_value(db_map,entity_class_target,param_list[param_source][0],value_["alternative_name"],entity_target_name,value_param)
 
+def entity_exists(db_map, entity_class, name_tuple):
+    try:
+        db_map.get_entity_items(entity_class_name=entity_class, entity_byname=name_tuple)
+        return True
+    except:
+        return False
+
 def coupling_spatial_resolutions(db_map : DatabaseMapping, config : dict):
 
-    mopo_resolutions = ["PECD1","PECD2","NUTS2","NUTS3"]
+#    mopo_resolutions = ["PECD1","PECD2","NUTS2","NUTS3"] #used for EU case study
+    mopo_resolutions = ["PECD1","IC1","NUTS3"]  #used for IC1 resolution industrial case study
     commodity_pipeline = {"elec":"power_transmission","CH4":"gas_pipelines","H2":"gas_pipelines","bio":"cargo_transport","HC":"cargo_transport","MeOH":"cargo_transport"}
     for commodity in config["user"]["network"]:
         if config["user"]["commodity"][commodity]["status"]:
@@ -1345,11 +1365,12 @@ def coupling_spatial_resolutions(db_map : DatabaseMapping, config : dict):
                                 link_name = f"{polygon_name}_{commodity}_{target_polygon}"
                                 node_name_1 = f"{commodity}_{polygon_name}"
                                 node_name_2 = f"{commodity}_{target_polygon}"
-                                add_entity(db_map,"link",(link_name,))
-                                add_entity(db_map,"node__link__node",(node_name_1,link_name,node_name_2))
-                                add_entity(db_map,"node__link__node",(node_name_2,link_name,node_name_1))
-                                add_parameter_value(db_map,"node__link__node","efficiency","Base",(node_name_1,link_name,node_name_2),1.0)
-                                add_parameter_value(db_map,"node__link__node","efficiency","Base",(node_name_2,link_name,node_name_1),1.0)
+                                if not entity_exists(db_map, "link", (link_name,)):                                    
+                                    add_entity(db_map,"link",(link_name,))
+                                    add_entity(db_map,"node__link__node",(node_name_1,link_name,node_name_2))
+                                    add_entity(db_map,"node__link__node",(node_name_2,link_name,node_name_1))
+                                    add_parameter_value(db_map,"node__link__node","efficiency","Base",(node_name_1,link_name,node_name_2),1.0)
+                                    add_parameter_value(db_map,"node__link__node","efficiency","Base",(node_name_2,link_name,node_name_1),1.0)
                                 break
 
 def add_policy_constraints(db_map : DatabaseMapping, config : dict):

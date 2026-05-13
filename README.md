@@ -33,11 +33,11 @@ Once constructed, this repo should be an easy way to reproduce the Industrial Ca
 1. Create & activate a new **python environment**:
     ```
     py -3.13 -m venv .venv
-    .\venv\Scripts\Activate.ps1
+    .venv\Scripts\Activate.ps1
     ```
     !Note: in CMD terminal:
     ```
-    \.venv\Scripts>activate.bat 
+    .venv\Scripts\activate.bat 
     ```
     
 1. Install python dependencies: 

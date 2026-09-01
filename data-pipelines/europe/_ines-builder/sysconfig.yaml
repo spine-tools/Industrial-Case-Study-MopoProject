@@ -72,6 +72,7 @@ power_sector:
           - [node_type,storage,[[1]]]
           - [storage_capacity,1.0,[[1]]]
           - [storage_limit_method,upper_limit,[[1]]]
+          - [storage_state_binding_method,leap_over_forward_only,[[1]]]
       storage_connection:  
         node__to_unit:
           - [capacity,1.0,[[2],[1,2]]]
@@ -207,7 +208,7 @@ hydro_systems:
           - [storage_capacity,1.0,[[1]],[]]
           - [storage_limit_method,lower_limit,[[1]],[inflow]]
           - [storage_state_fix_method,fix_start,[[1]],[]]
-          - [storage_state_binding_method,leap_over_within_period,[[1]],[]]
+          - [storage_state_binding_method,leap_over_forward_only,[[1]],[]]
           - [flow_scaling_method,use_profile_directly,[[1]],[]]
           - [storage_investment_method,not_allowed,[[1]],[]]
           - [storage_retirement_method,not_retired,[[1]],[]]
@@ -448,7 +449,7 @@ gas_sector:
         node:
           - [node_type,storage,[[1]]]
           # - [storage_limit_method,upper_limit,[[1]]]
-          - [storage_state_binding_method,leap_over_within_period,[[1]]]
+          - [storage_state_binding_method,leap_over_forward_only,[[1]]]
     fixed:
       technology:
         unit:

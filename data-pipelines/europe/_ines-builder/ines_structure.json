@@ -2035,6 +2035,12 @@
             null,
             null,
             "[p.u.] Efficiency forecasts either through forecast time series (1st dimension forecast name, 2nd time series) or updating forecasts (1st dimension forecast name, 2nd analysis time, 3rd time series)."
+        ],        [
+            "unit",
+            "co2_emission",
+            null,
+            null,
+            "[ton of CO2/unit of output] Process CO2 emission intensity per unit of main product output, net of any capture. Can be negative for processes with net removal (e.g. BECCS). Constant or array of periods."
         ],
         [
             "unit",

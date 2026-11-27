@@ -1,0 +1,71 @@
+UPSTREAM PROVENANCE — eu-case-migration branch
+==============================================
+
+This branch rebuilds the Industrial Case Study (IC1) on top of the validated
+European case study workflow instead of the previously vendored, locally
+patched workflow.
+
+Vendored (flattened, not submodules) from these upstream repositories,
+captured 2026-09-18 from the colleague's working copy at
+Documents/github-repos/Industrial-Case-Study-MopoProject/EU_case/new_European_Model_Data_structure:
+
+  data-pipelines/
+      repo   : https://github.com/ines-tools/data-pipelines
+      branch : EU_case
+      commit : ca8eb6c0b94f3996cdc352dee6250d7ab035c881   ("update_CO2_data_14092026")
+      state  : commit + UNCOMMITTED working-tree changes (see caveat below)
+
+  ines-spineopt/
+      repo   : https://github.com/ines-tools/ines-spineopt
+      branch : EU_case
+      commit : 279f30520e8659164c80787077ffc88077d6ea42   ("update_to_new_data_structure_spineopt")
+      state  : clean
+
+  Pan-European-Framework-Energy-System-Planning/
+      repo   : https://github.com/spine-tools/Pan-European-Framework-Energy-System-Planning
+      branch : main
+      commit : 0a69c9db515dc76be71af977288283dfdbfabca9   ("update_new_data_structure_14092026")
+      state  : commit + UNCOMMITTED working-tree changes (see caveat below)
+
+
+CAVEAT — uncommitted upstream work is included
+----------------------------------------------
+Two of the three sources were copied with uncommitted modifications present in
+the colleague's working tree. These are deliberately included because they
+contain fixes we depend on, but they exist in no upstream commit and cannot be
+retrieved by cloning the SHAs above.
+
+  data-pipelines (3 files):
+    _ines-builder/ines_target.py   CO2 network link bug fix: node2 used "from"
+                                   instead of "to"; plus try/except around CO2
+                                   link creation (note: swallows errors)
+    _ines-builder/sysconfig.yaml   heat_sector commodity__to_end-use converted
+                                   from link-based (node__link__node +
+                                   efficiency) to unit-based (node__to_unit /
+                                   unit__to_node / unit_flow__unit_flow +
+                                   equality_ratio)
+    userconfig.yaml                CO2 interconnection_out_model -> False
+
+  Pan-European-Framework-Energy-System-Planning (3 files):
+    scenario_run.py                storage_setup() moved earlier in main();
+                                   cyclic_condition query hoisted out of loop
+    scenario_config.yml            scenario list / buildout tweaks
+    _visualization/config/scenario_mapping.yml
+
+Verbatim patches of this inherited state are archived outside the repo at:
+  Documents/_migration-snapshots/
+    EU_data-pipelines_uncommitted.patch
+    EU_framework_uncommitted.patch
+    EU_ines-spineopt_uncommitted.patch   (empty - source was clean)
+    UPSTREAM_PINS.txt
+
+Action: confirm with the author whether these working-tree changes are
+intentional and should be pushed upstream.
+
+
+BRANCH BASE
+-----------
+Branched from upstream/main f0ece41 ("Merge pull request #12 from
+IsaiMaganTNO/improve-vre-postprocessing-and-env-pinning"), i.e. the state of
+spine-tools/Industrial-Case-Study-MopoProject after the SpineOpt v1.0.0
+upgrade, emission-cap and VRE/postprocessing PRs were merged.

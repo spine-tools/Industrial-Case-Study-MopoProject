@@ -1,8 +1,0 @@
-profile_name,timestep,value
-DHW_or_space,1,0.0
-RoR,1,0.0
-cool,1,0.0
-elec,1,0.0
-solar,1,0.0
-transport_truck_bus_van_car_rail_aviation_maritime,1,0.0
-wind,1,0.0

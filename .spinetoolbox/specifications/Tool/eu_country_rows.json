@@ -1,0 +1,13 @@
+{
+    "name": "eu_country_rows",
+    "tooltype": "python",
+    "includes": [
+        "merge_eu_country_rows.py"
+    ],
+    "description": "Copy country-level rows (userconfig countries except BE/NL) from the EU case sector DBs (eu_case_dir)",
+    "inputfiles": [],
+    "inputfiles_opt": [],
+    "outputfiles": [],
+    "cmdline_args": [],
+    "includes_main_path": "../../../tools"
+}

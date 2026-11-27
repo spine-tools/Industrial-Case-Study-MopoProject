@@ -1,0 +1,8 @@
+title: Pan-European Energy Planning
+remote_theme: just-the-docs/just-the-docs
+url: https://spine-tools.github.io
+baseurl: /Pan-European-Framework-Energy-System-Planning
+plugins:
+  - jekyll-remote-theme
+search_enabled: true
+

@@ -4,19 +4,18 @@ node:
       commodity: 
         balance_type: none
       storage:
-        storage_investment_variable_type: linear
         storage_active: True
     storage_investment_method:
       no_limits: 
-        storage_investment_count_max_cumulative: 10000000.0
+        storage_investment_count_max_cumulative: 10000.0
 unit: 
   unit: 
     investment_method:
       no_limits: 
-        investment_count_max_cumulative: 10000000.0
+        investment_count_max_cumulative: 1000.0
 link: 
   connection: 
     investment_method:
       no_limits: 
-        investment_count_max_cumulative: 10000000.0
+        investment_count_max_cumulative: 1000.0
 

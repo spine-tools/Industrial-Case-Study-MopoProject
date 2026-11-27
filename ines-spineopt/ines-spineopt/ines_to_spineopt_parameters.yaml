@@ -1,7 +1,3 @@
-# Updated 2026-07-22 for SpineOpt v1.0.0:
-#   target class unit__from_node -> node__to_unit  (dims (node, unit), no more swap)
-#   parameter unit_capacity -> capacity_per_unit
-#   parameter node_state_cap -> storage_state_max
 node__to_unit:
   node__to_unit:
     capacity: [capacity_per_unit,1.0,[[1],[2]]]

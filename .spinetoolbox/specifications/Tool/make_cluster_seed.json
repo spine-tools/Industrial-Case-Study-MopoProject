@@ -1,0 +1,13 @@
+{
+    "name": "make_cluster_seed",
+    "tooltype": "python",
+    "includes": [
+        "make_cluster_seed.py"
+    ],
+    "description": "Write the pinned representative-day seed (scenario_config.yml representative_days) for run_clustering",
+    "inputfiles": [],
+    "inputfiles_opt": [],
+    "outputfiles": [],
+    "cmdline_args": [],
+    "includes_main_path": "../../../tools"
+}

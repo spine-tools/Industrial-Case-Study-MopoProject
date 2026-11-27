@@ -2,12 +2,12 @@
     "name": "heat_importer",
     "tooltype": "python",
     "includes": [
-        "heat_DB.py"
+        "data-pipelines/europe/_heat/heat_DB.py"
     ],
     "description": "",
     "inputfiles": [],
     "inputfiles_opt": [],
     "outputfiles": [],
     "cmdline_args": [],
-    "includes_main_path": "../../../data-pipelines/europe/_heat"
+    "includes_main_path": "../../../"
 }

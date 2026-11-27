@@ -147,8 +147,7 @@
             null,
             null,
             null
-        ],
-        [
+        ],        [
             "technology__to_commodity__to_commodity",
             "CO2_captured",
             null,

@@ -56,6 +56,9 @@ import sys
 import csv
 import json
 import random
+
+# FIX (2026-10-08): seed so any residual random branch is reproducible.
+random.seed(20261008)
 from pprint import pprint
 from copy import deepcopy
 from math import sqrt
@@ -1344,7 +1347,10 @@ def decay_capacity(unit, lifetime, milestoneyears):  # baseyear
                 capacity[milestoneyear] = 0.0
     elif unit["date_in"] and lifetime:
         for milestoneyear in milestoneyears:
-            if int(milestoneyear[1:]) < int(float(unit["DateIn"])) + int(
+            # FIX (2026-10-08): was unit["DateIn"] - a key absent from this
+            # dict (it is "date_in"). Latent KeyError, never reached while
+            # date_in was always None.
+            if int(milestoneyear[1:]) < int(float(unit["date_in"])) + int(
                 float(lifetime)
             ):
                 capacity[milestoneyear] = float(unit["capacity"])
@@ -1485,13 +1491,18 @@ def map_ppm_jaif(unit_ppm):
         cap_ppm = float(unit_ppm["Capacity"])
     except:
         cap_ppm = None
+    # FIX (2026-10-08): these previously read float("DateIn") /
+    # float("DateOut"), i.e. the literal column *name*, which always raised
+    # ValueError and forced both to None for every plant. That sent 100% of
+    # units down the random-retirement branch of decay_capacity().
+    # See docs/FINDING_random_retirement_dates.md
     try:
-        datein_ppm = float("DateIn")
-    except:
+        datein_ppm = float(unit_ppm["DateIn"])
+    except (KeyError, TypeError, ValueError):
         datein_ppm = None
     try:
-        dateout_ppm = float("DateOut")
-    except:
+        dateout_ppm = float(unit_ppm["DateOut"])
+    except (KeyError, TypeError, ValueError):
         dateout_ppm = None
 
     unit_jaif = {
@@ -1871,13 +1882,26 @@ if __name__ == "__main__":
             "y2030": "costs_2030",
             "y2040": "costs_2040",
             "y2050": "costs_2050",
-        },
-        "ppm": "powerplants",  # "powerplants.csv",
+        },        "ppm": "powerplants",  # "powerplants.csv",
         "ass": "assumptions",  # "assumptions.xlsx",
         "cnf": "config",  # config.json
         "tmp": "template",  # power_template_DB.json
         "spd": "http",  # spine db
     }
+    # The Spine DB argument is located by fuzzy-matching the literal "http",
+    # which assumes a server URL. With a local file-backed store Spine Toolbox
+    # passes "sqlite:///...", which scores 15 against "http" while
+    # "powerplants.csv" scores 28 - so the matcher silently hands the importer a
+    # CSV path as its database and the run dies in make_url(). Identify the URL
+    # by its scheme first and only fall back to fuzzy matching if none is found.
+    _db_url = next(
+        (
+            a
+            for a in sys.argv[1:]
+            if "://" in a and a.split("://", 1)[0].lower() not in ("file",)
+        ),
+        None,
+    )
     for key, value in inputfiles.items():
         if type(value) == dict:
             for k, v in value.items():
@@ -1887,7 +1911,9 @@ if __name__ == "__main__":
                     inputfiles[key][k] = None
                 print(f"Using {inputfiles[key][k]} as {v}")
         else:
-            if extractOne(value, sys.argv[1:]):
+            if key == "spd" and _db_url is not None:
+                inputfiles[key] = _db_url
+            elif extractOne(value, sys.argv[1:]):
                 inputfiles[key] = extractOne(value, sys.argv[1:])[0]
             else:
                 inputfiles[key] = None

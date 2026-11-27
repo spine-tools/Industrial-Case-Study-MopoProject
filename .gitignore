@@ -1,7 +1,44 @@
 .spinetoolbox/local
 .spinetoolbox/items/**/*.sqlite
 data/*/
-!data/geodata
 
 # Local A/B result snapshots — kept out of PRs; see _baselines/*/README.md
 _baselines/
+
+# Excel backups created by tools/fill_ccs_technology_data.py
+*.xlsx.bak
+
+# Local backups of VS Code Copilot Chat sessions (large, machine-specific)
+chat-backup/
+
+# --- local run artefacts (added 2026-11-23): keep code/docs/configs in git, not data ---
+*.sqlite
+*.sqlite-journal
+*.zip
+*.pkl
+*.bak_*
+*.bak3day
+*.pre-*
+backups/
+checkpoints/
+share_*/
+xpress_server*/
+reports_*/
+reports/pessimistic_ccs/
+logs/
+EU_case_updated_results/
+verification/Data - IC1 and PECD1/
+plot_scripts/**/*.png
+gurobi.log
+/x
+runs/**/plots/
+runs/**/*.pdf
+runs/**/logs/
+plot_scripts/**/out/
+reports/*.pdf
+final_runs_pessimistic_ccs/**/*.pdf
+runs/**/slides_png/
+
+# Pan-European dataset (downloaded separately from Zenodo, see README)
+Pan-European_Energy_System_Dataset/
+Pan-European_Energy_System/

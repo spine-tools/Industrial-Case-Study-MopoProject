@@ -61,8 +61,8 @@ pipelines:
 
 model:
     type:  brownfield # greenfied not included yet
-    operations_resolution: "8760h"
-    planning_resolution: "8760h" # it builds this optimization window for each planning year
+    operations_resolution: "1h"
+    planning_resolution: "365D" # it builds this optimization window for each planning year
     planning_years: # options: 2030, 2040 and 2050 (parameters limitation)
       "2030": ["2030-01-01T00:00:00",10.0] # start datetime and years represented
       "2040": ["2041-01-01T00:00:00",10.0] # 2041 no leap year
@@ -81,23 +81,56 @@ timeline:
       start : "2009-01-01T00:00:00"
 
 global_constraints:
+  # Source: verification/global_constraints_industry_case_study.xlsx, sheet
+  # "userconfig.yaml". Budget = 1990 UNFCCC emissions x reduction factor
+  # (0.45 / 0.10 / 0.00 for 2030 / 2040 / 2050). https://di.unfccc.int/
+  #
+  #        1990 Mt   2030 Mt   2040 Mt
+  #   NL    221.78     99.801    22.178
+  #   BE    145.84     65.628    14.584
+  #   NO     50.71     22.820     5.071
+  #   DE   1251.00    562.950   125.100
+  #   DK     71.82     32.319     7.182
+  #   UK    806.30    362.835    80.630
+  #
+  # The BE+NL-only values were 165400000 / 36800000 / 0.0; restore those if the
+  # country list is narrowed back to BE+NL.
+  # The 2050 zero is INTENTIONAL - see the long comment in scenario_config.yml.
+  # Net zero is reached via the CCS chain, not by relaxing the budget. Do not
+  # floor it to force feasibility.
   co2_annual_budget:
-    "2030": 170000000 # BE+NL scope (170 Mt CO2/yr); was European 2200 Mt/yr
-    "2040": 40000000  # BE+NL scope (40 Mt CO2/yr); was European 550 Mt/yr
+    "2030": 1146352500 # NL+BE+NO+DE+DK+UK, ton CO2eq
+    "2040": 254745000  # ton CO2eq
     "2050": 0.0
-  co2_annual_sequestration: 200000000 # system level (still European scope; adjust separately if desired)
+  co2_sequestration_cost: 65 # €/ton CO2
+  co2_transport_cost: 40 # €/ton CO2
+  # Must be keyed by the same polygons as the gas_sector target_resolution; CCS_data/ holds the source variants.
+  # Final IC1 baseline = pessimistic CCS: high-cost transport/injection tariffs (verification/CO2_data_IC1_high_cost.xlsx)
+  # with the low-storage NSNL012 2050 value set to 13.5 Mt/yr. CO2_data_IC1.xlsx = low-cost (optimistic) variant.
+  co2_data_file: ../../../data/CO2_network/CO2_data_IC1_high_cost.xlsx
 
 # Use country code to model a specific country  and define Europe as country, then, the remaining countries are modeled following requirements
+# IC1 industrial case: BE and NL only. Previously written as the scalar "-NL -BE",
+# which YAML parsed as a string and which only selected BE/NL by substring accident.
+# Mixed-resolution run: BE and NL at IC1 cluster detail (17 regions) plus
+# DE/DK/NO/UK each as a single country-level region (added to the IC1 sheet of
+# region_transformation.xlsx, reusing PECD1 geometry). FR and LU are
+# deliberately excluded for now; define_polygons only emits polygons for
+# countries listed here, so FR self-excludes despite appearing in its list.
+# NOTE: every code MUST be quoted. Unquoted NO is parsed by YAML 1.1 as the
+# boolean false, which silently drops Norway from the model.
 countries : 
-  #- Europe
-  -NL
-  -BE
- # -UK
- # -NO
- # -DE
- # -FR
- # -DK
-  # - ES
+  - "BE"
+  - "NL"
+  - "DE"
+  - "DK"
+  - "NO"
+  - "UK"
+
+# Country-level data for the non-IC1 countries above (all except BE/NL) is copied from the
+# EU case sector databases by tools/merge_eu_country_rows.py (Toolbox tool eu_country_rows).
+# Path to the EU case .spinetoolbox/items folder, relative to the repository root.
+eu_case_dir: "Pan-European_Energy_System_Dataset/.spinetoolbox/items"
 
 # Sectors optimized
 commodity: 
@@ -111,7 +144,7 @@ commodity:
     status: True
     node_type: balance
   CO2: 
-    status: False
+    status: True
     node_type: storage
   bio: 
     status: True
@@ -120,6 +153,9 @@ commodity:
     status: True
     node_type: balance
   MeOH: 
+    status: True
+    node_type: balance
+  NH3:
     status: True
     node_type: balance
   fossil-CH4: 
@@ -143,28 +179,37 @@ commodity:
   waste: 
     status: False
     node_type: commodity
+  atmosphere:
+    status: False
+    node_type: storage
 
 network: 
   elec: 
     status: True # True = it is modeled
     # if true, the countries in the model are interconnected with their neighbors using an exogenous fixed price
     # WARNING: it can consider the neighboring countries have unlimited capacity and it is more affordable to import everything
-    interconnection_out_model: True #False for EU case #True allows connections between other EU countries and IC1 regions to be imported here
+    interconnection_out_model: True
   CH4: 
     status: True
-    interconnection_out_model: True #False for EU case #True allows connections between other EU countries and IC1 regions to be imported here
+    interconnection_out_model: True
   H2: 
     status: True
-    interconnection_out_model: True #False for EU case #True allows connections between other EU countries and IC1 regions to be imported here
+    interconnection_out_model: True
+  CO2:
+    status: True
+    interconnection_out_model: False
+    # The CO2 network sheet is an undirected edge list; write both directions.
+    bidirectional: True
+  # IC1: True lets other EU countries connect to the IC1 regions for these commodities
   MeOH: 
     status: True
-    interconnection_out_model: True #False for EU case #True allows connections between other EU countries and IC1 regions to be imported here
+    interconnection_out_model: True
   HC: 
     status: True
-    interconnection_out_model: True #False for EU case #True allows connections between other EU countries and IC1 regions to be imported here
+    interconnection_out_model: True
   bio: 
     status: True
-    interconnection_out_model: True #False for EU case #True allows connections between other EU countries and IC1 regions to be imported here
+    interconnection_out_model: True
 
 storage:
   battery-storage:
@@ -198,13 +243,13 @@ technology:
     status: False
     investment_method: "no_limits"
   OCGT:
-    status: False
+    status: True
     investment_method: "no_limits"
   OCGT+CC:
     status: False
     investment_method: "no_limits"
   CCGT:
-    status: False
+    status: True
     investment_method: "no_limits"
   CCGT-existing:
     status: True
@@ -213,10 +258,10 @@ technology:
     status: True
     investment_method: "no_limits"
   OCGT-H2:
-    status: False
+    status: True
     investment_method: "no_limits"
   CCGT-H2:
-    status: False
+    status: True
     investment_method: "no_limits"
   wasteST:
     status: False
@@ -258,13 +303,13 @@ technology:
     status: False
     investment_method: "no_limits"
   wind-on-SP277-HH100:
-    status: False
+    status: True
     investment_method: "no_limits"
   wind-on-SP277-HH150: 
     status: False
     investment_method: "no_limits"
   wind-on-SP199-HH100:
-    status: True
+    status: False
     investment_method: "no_limits"
   wind-on-SP199-HH150:
     status: False
@@ -294,7 +339,7 @@ technology:
     status: False
     investment_method: "no_limits"
   fuelcell:
-    status: False
+    status: True
     investment_method: "no_limits"
   hydro-turbine:
     status: True
@@ -321,6 +366,9 @@ technology:
   SOEC: 
     status: False
     investment_method: "no_limits"
+  harber-bosch:
+    status: True
+    investment_method: "no_limits"
   gas-pyrolysis: 
     status: False
     investment_method: "no_limits"
@@ -331,7 +379,7 @@ technology:
     status: True
     investment_method: "no_limits"
   bio-diges-up+CC: 
-    status: False
+    status: True
     investment_method: "no_limits"
   bio-diges-metha: 
     status: False
@@ -389,7 +437,7 @@ technology:
     status: False
     investment_method: "not_allowed"
   oil-boiler:
-    status: True
+    status: False
     investment_method: "no_limits"
   oil-boiler-existing:
     status: True
@@ -628,8 +676,16 @@ technology:
   WPI-BOF-MEA:
     status: true
   alumina-production-alternative:
-    status: true
+    status: True
   alumina-production-reference:
+    status: True
+  aluminium-primary-production-alternative:
+    status: True
+  aluminium-primary-production-reference:
+    status: True
+  aluminium-secondary-production-alternative:
+    status: True
+  aluminium-secondary-production-reference:
     status: True
   food-beverages-tobacco-production-alternative:
     status: True
@@ -767,9 +823,23 @@ vehicle:
     status: True
   int-aviation:
     status: True
+  # IC1 transport pipeline emits unsuffixed maritime vehicles; the EU pipeline
+  # splits them by fuel. Both sets are listed so either pipeline resolves.
   maritime:
     status: True
   int-maritime:
+    status: True
+  maritime-HC:
+    status: True
+  int-maritime-HC:
+    status: True
+  maritime-NH3:
+    status: True
+  int-maritime-NH3:
+    status: True
+  maritime-MeOH:
+    status: True
+  int-maritime-MeOH:
     status: True
   rail:
     status: True

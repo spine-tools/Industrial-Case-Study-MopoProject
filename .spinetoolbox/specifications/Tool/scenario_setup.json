@@ -1,0 +1,13 @@
+{
+    "name": "scenario_setup",
+    "tooltype": "python",
+    "includes": [
+        "scenario_run.py"
+    ],
+    "description": "",
+    "inputfiles": [],
+    "inputfiles_opt": [],
+    "outputfiles": [],
+    "cmdline_args": [],
+    "includes_main_path": "../../../Pan-European-Framework-Energy-System-Planning/src/_planning-input-processsing"
+}

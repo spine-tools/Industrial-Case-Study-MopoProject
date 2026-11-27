@@ -4,7 +4,7 @@
         "description": "",
         "settings": {
             "enable_execute_all": true,
-            "store_external_paths_as_relative": true
+            "store_external_paths_as_relative": false
         },
         "specifications": {
             "Tool": [
@@ -61,32 +61,12 @@
                 {
                     "type": "path",
                     "relative": true,
-                    "path": ".spinetoolbox/specifications/Tool/gas_import.json"
-                },
-                {
-                    "type": "path",
-                    "relative": true,
-                    "path": ".spinetoolbox/specifications/Tool/cargo_importer.json"
-                },
-                {
-                    "type": "path",
-                    "relative": true,
-                    "path": ".spinetoolbox/specifications/Tool/commodity_importer.json"
-                },
-                {
-                    "type": "path",
-                    "relative": true,
                     "path": ".spinetoolbox/specifications/Tool/ines_to_spineopt.json"
                 },
                 {
                     "type": "path",
                     "relative": true,
-                    "path": ".spinetoolbox/specifications/Tool/opt_setup.json"
-                },
-                {
-                    "type": "path",
-                    "relative": true,
-                    "path": ".spinetoolbox/specifications/Tool/scenario_run.json"
+                    "path": ".spinetoolbox/specifications/Tool/gas_import.json"
                 },
                 {
                     "type": "path",
@@ -96,22 +76,57 @@
                 {
                     "type": "path",
                     "relative": true,
+                    "path": ".spinetoolbox/specifications/Tool/run_clustering.json"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Tool/visualization.json"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Tool/cargo_importer.json"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Tool/fix_investments.json"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
                     "path": ".spinetoolbox/specifications/Tool/clustering_output.json"
                 },
                 {
                     "type": "path",
                     "relative": true,
-                    "path": ".spinetoolbox/specifications/Tool/feedback.json"
+                    "path": ".spinetoolbox/specifications/Tool/scenario_setup.json"
                 },
                 {
                     "type": "path",
                     "relative": true,
-                    "path": ".spinetoolbox/specifications/Tool/planning_setup.json"
+                    "path": ".spinetoolbox/specifications/Tool/feedback_extremes.json"
                 },
                 {
                     "type": "path",
                     "relative": true,
-                    "path": ".spinetoolbox/specifications/Tool/run_clustering.json"
+                    "path": ".spinetoolbox/specifications/Tool/commodity_importer.json"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Tool/power_fleet_pin.json"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Tool/eu_country_rows.json"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/specifications/Tool/make_cluster_seed.json"
                 }
             ]
         },
@@ -662,6 +677,45 @@
                 }
             },
             {
+                "name": "from ines_to_spineopt to SpineOpt_target",
+                "from": [
+                    "ines_to_spineopt",
+                    "right"
+                ],
+                "to": [
+                    "SpineOpt_target",
+                    "left"
+                ],
+                "options": {
+                    "write_index": 2
+                },
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from INES_DB to ines_to_spineopt",
+                "from": [
+                    "INES_DB",
+                    "right"
+                ],
+                "to": [
+                    "ines_to_spineopt",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
                 "name": "from gas_input to gas_import",
                 "from": [
                     "gas_input",
@@ -712,6 +766,60 @@
                     "enabled_filter_types": {
                         "alternative_filter": true,
                         "scenario_filter": false
+                    }
+                }
+            },
+            {
+                "name": "from Run_Model_Planning to Investment_Results",
+                "from": [
+                    "Run_Model_Planning",
+                    "right"
+                ],
+                "to": [
+                    "Investment_Results",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from clustering_input to run_clustering",
+                "from": [
+                    "clustering_input",
+                    "right"
+                ],
+                "to": [
+                    "run_clustering",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from Investment_Results to visualization",
+                "from": [
+                    "Investment_Results",
+                    "right"
+                ],
+                "to": [
+                    "visualization",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
                     }
                 }
             },
@@ -788,6 +896,354 @@
                 }
             },
             {
+                "name": "from Final_SpineOpt_Model to Run_Model_Planning",
+                "from": [
+                    "Final_SpineOpt_Model",
+                    "right"
+                ],
+                "to": [
+                    "Run_Model_Planning",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from merge_spineopt to Final_SpineOpt_Model",
+                "from": [
+                    "merge_spineopt",
+                    "right"
+                ],
+                "to": [
+                    "Final_SpineOpt_Model",
+                    "left"
+                ],
+                "options": {
+                    "purge_before_writing": true,
+                    "purge_settings": {
+                        "alternative": true,
+                        "scenario": true,
+                        "scenario_alternative": true,
+                        "entity_class": true,
+                        "display_mode": true,
+                        "entity_class_display_mode": true,
+                        "superclass_subclass": true,
+                        "entity": true,
+                        "entity_group": true,
+                        "entity_alternative": true,
+                        "parameter_value_list": true,
+                        "list_value": true,
+                        "parameter_definition": true,
+                        "parameter_type": true,
+                        "parameter_value": true,
+                        "metadata": true,
+                        "entity_metadata": true,
+                        "parameter_value_metadata": true,
+                        "entity_location": true
+                    }
+                },
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from SpineOpt_target to merge_spineopt",
+                "from": [
+                    "SpineOpt_target",
+                    "right"
+                ],
+                "to": [
+                    "merge_spineopt",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from Final_SpineOpt_Model to visualization",
+                "from": [
+                    "Final_SpineOpt_Model",
+                    "bottom"
+                ],
+                "to": [
+                    "visualization",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from clustering_input to Final_SpineOpt_Model",
+                "from": [
+                    "clustering_input",
+                    "left"
+                ],
+                "to": [
+                    "Final_SpineOpt_Model",
+                    "bottom"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from template_1 to SpineOpt_target",
+                "from": [
+                    "template_1",
+                    "bottom"
+                ],
+                "to": [
+                    "SpineOpt_target",
+                    "left"
+                ],
+                "options": {
+                    "purge_before_writing": true,
+                    "purge_settings": {
+                        "alternative": true,
+                        "scenario": true,
+                        "scenario_alternative": true,
+                        "entity_class": true,
+                        "display_mode": true,
+                        "entity_class_display_mode": true,
+                        "superclass_subclass": true,
+                        "entity": true,
+                        "entity_group": true,
+                        "entity_alternative": true,
+                        "parameter_value_list": true,
+                        "list_value": true,
+                        "parameter_definition": true,
+                        "parameter_type": true,
+                        "parameter_value": true,
+                        "metadata": true,
+                        "entity_metadata": true,
+                        "parameter_value_metadata": true,
+                        "entity_location": true
+                    }
+                },
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from Operational_Model to Run_Dispatch",
+                "from": [
+                    "Operational_Model",
+                    "right"
+                ],
+                "to": [
+                    "Run_Dispatch",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from Run_Dispatch to Dispatch_Results",
+                "from": [
+                    "Run_Dispatch",
+                    "right"
+                ],
+                "to": [
+                    "Dispatch_Results",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from fix_investments to Operational_Model",
+                "from": [
+                    "fix_investments",
+                    "left"
+                ],
+                "to": [
+                    "Operational_Model",
+                    "bottom"
+                ],
+                "options": {
+                    "write_index": 2
+                },
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from run_clustering to clustering_output",
+                "from": [
+                    "run_clustering",
+                    "right"
+                ],
+                "to": [
+                    "clustering_output",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from clustering_output to Final_SpineOpt_Model",
+                "from": [
+                    "clustering_output",
+                    "right"
+                ],
+                "to": [
+                    "Final_SpineOpt_Model",
+                    "bottom"
+                ],
+                "options": {
+                    "write_index": 2
+                },
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from Investment_Results to fix_investments",
+                "from": [
+                    "Investment_Results",
+                    "right"
+                ],
+                "to": [
+                    "fix_investments",
+                    "bottom"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from Final_SpineOpt_Model to merge_operations",
+                "from": [
+                    "Final_SpineOpt_Model",
+                    "right"
+                ],
+                "to": [
+                    "merge_operations",
+                    "bottom"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from merge_operations to Operational_Model",
+                "from": [
+                    "merge_operations",
+                    "right"
+                ],
+                "to": [
+                    "Operational_Model",
+                    "bottom"
+                ],
+                "options": {
+                    "purge_before_writing": true,
+                    "purge_settings": {
+                        "alternative": true,
+                        "scenario": true,
+                        "scenario_alternative": true,
+                        "entity_class": false,
+                        "display_mode": false,
+                        "entity_class_display_mode": false,
+                        "superclass_subclass": false,
+                        "entity": true,
+                        "entity_group": true,
+                        "entity_alternative": true,
+                        "parameter_value_list": false,
+                        "list_value": false,
+                        "parameter_definition": false,
+                        "parameter_type": false,
+                        "parameter_value": true,
+                        "metadata": true,
+                        "entity_metadata": true,
+                        "parameter_value_metadata": true,
+                        "entity_location": true
+                    }
+                },
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from scenario_config to feedback_extremes",
+                "from": [
+                    "scenario_config",
+                    "right"
+                ],
+                "to": [
+                    "feedback_extremes",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
                 "name": "from commodity_input to commodity_importer",
                 "from": [
                     "commodity_input",
@@ -814,6 +1270,42 @@
                 "to": [
                     "Commodity_DB",
                     "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from feedback_extremes to Dispatch_Results",
+                "from": [
+                    "feedback_extremes",
+                    "right"
+                ],
+                "to": [
+                    "Dispatch_Results",
+                    "bottom"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from feedback_extremes to run_clustering",
+                "from": [
+                    "feedback_extremes",
+                    "left"
+                ],
+                "to": [
+                    "run_clustering",
+                    "bottom"
                 ],
                 "filter_settings": {
                     "auto_online": true,
@@ -860,51 +1352,18 @@
                 }
             },
             {
-                "name": "from INES_DB to Ines_to_spineopt",
+                "name": "from scenario_setup to Final_SpineOpt_Model",
                 "from": [
-                    "INES_DB",
-                    "right"
-                ],
-                "to": [
-                    "Ines_to_spineopt",
+                    "scenario_setup",
                     "left"
                 ],
-                "filter_settings": {
-                    "auto_online": true,
-                    "enabled_filter_types": {
-                        "alternative_filter": false,
-                        "scenario_filter": true
-                    }
-                }
-            },
-            {
-                "name": "from Ines_to_spineopt to SpineOpt_DB",
-                "from": [
-                    "Ines_to_spineopt",
-                    "right"
-                ],
                 "to": [
-                    "SpineOpt_DB",
-                    "left"
-                ],
-                "filter_settings": {
-                    "auto_online": true,
-                    "enabled_filter_types": {
-                        "alternative_filter": false,
-                        "scenario_filter": true
-                    }
-                }
-            },
-            {
-                "name": "from Load template to SpineOpt_DB",
-                "from": [
-                    "Load template",
+                    "Final_SpineOpt_Model",
                     "bottom"
                 ],
-                "to": [
-                    "SpineOpt_DB",
-                    "left"
-                ],
+                "options": {
+                    "write_index": 3
+                },
                 "filter_settings": {
                     "auto_online": true,
                     "enabled_filter_types": {
@@ -914,103 +1373,13 @@
                 }
             },
             {
-                "name": "from Run SpineOpt to Investment_results_DB",
+                "name": "from scenario_config to scenario_setup",
                 "from": [
-                    "Run SpineOpt",
-                    "right"
-                ],
-                "to": [
-                    "Investment_results_DB",
+                    "scenario_config",
                     "left"
                 ],
-                "filter_settings": {
-                    "auto_online": true,
-                    "enabled_filter_types": {
-                        "alternative_filter": false,
-                        "scenario_filter": true
-                    }
-                }
-            },
-            {
-                "name": "from SpineOpt_DB to Merger",
-                "from": [
-                    "SpineOpt_DB",
-                    "right"
-                ],
                 "to": [
-                    "Merger",
-                    "left"
-                ],
-                "filter_settings": {
-                    "auto_online": true,
-                    "enabled_filter_types": {
-                        "alternative_filter": false,
-                        "scenario_filter": true
-                    }
-                }
-            },
-            {
-                "name": "from Merger to SpineOpt_final_DB",
-                "from": [
-                    "Merger",
-                    "right"
-                ],
-                "to": [
-                    "SpineOpt_final_DB",
-                    "left"
-                ],
-                "filter_settings": {
-                    "auto_online": true,
-                    "enabled_filter_types": {
-                        "alternative_filter": false,
-                        "scenario_filter": true
-                    }
-                }
-            },
-            {
-                "name": "from SpineOpt_final_DB to Run SpineOpt",
-                "from": [
-                    "SpineOpt_final_DB",
-                    "right"
-                ],
-                "to": [
-                    "Run SpineOpt",
-                    "left"
-                ],
-                "filter_settings": {
-                    "auto_online": true,
-                    "enabled_filter_types": {
-                        "alternative_filter": false,
-                        "scenario_filter": true
-                    }
-                }
-            },
-            {
-                "name": "from planning_setup to SpineOpt_DB",
-                "from": [
-                    "planning_setup",
-                    "right"
-                ],
-                "to": [
-                    "SpineOpt_DB",
-                    "left"
-                ],
-                "filter_settings": {
-                    "auto_online": true,
-                    "enabled_filter_types": {
-                        "alternative_filter": false,
-                        "scenario_filter": true
-                    }
-                }
-            },
-            {
-                "name": "from clustering_output to SpineOpt_final_DB",
-                "from": [
-                    "clustering_output",
-                    "right"
-                ],
-                "to": [
-                    "SpineOpt_final_DB",
+                    "scenario_setup",
                     "bottom"
                 ],
                 "filter_settings": {
@@ -1022,49 +1391,229 @@
                 }
             },
             {
-                "name": "from clustering_input to SpineOpt_final_DB",
+                "name": "from scenario_config to visualization",
+                "from": [
+                    "scenario_config",
+                    "right"
+                ],
+                "to": [
+                    "visualization",
+                    "bottom"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from power_importer to power_fleet_pin",
+                "from": [
+                    "power_importer",
+                    "top"
+                ],
+                "to": [
+                    "power_fleet_pin",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from power_fleet_pin to Power_DB",
+                "from": [
+                    "power_fleet_pin",
+                    "right"
+                ],
+                "to": [
+                    "Power_DB",
+                    "top"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from industry_importer to eu_country_rows",
+                "from": [
+                    "industry_importer",
+                    "bottom"
+                ],
+                "to": [
+                    "eu_country_rows",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from transport_importer to eu_country_rows",
+                "from": [
+                    "transport_importer",
+                    "bottom"
+                ],
+                "to": [
+                    "eu_country_rows",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from hydro_importer to eu_country_rows",
+                "from": [
+                    "hydro_importer",
+                    "bottom"
+                ],
+                "to": [
+                    "eu_country_rows",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from heat_importer to eu_country_rows",
+                "from": [
+                    "heat_importer",
+                    "bottom"
+                ],
+                "to": [
+                    "eu_country_rows",
+                    "left"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from eu_country_rows to Industry_DB",
+                "from": [
+                    "eu_country_rows",
+                    "right"
+                ],
+                "to": [
+                    "Industry_DB",
+                    "bottom"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from eu_country_rows to Other_Industry_DB",
+                "from": [
+                    "eu_country_rows",
+                    "right"
+                ],
+                "to": [
+                    "Other_Industry_DB",
+                    "bottom"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from eu_country_rows to Transport_DB",
+                "from": [
+                    "eu_country_rows",
+                    "right"
+                ],
+                "to": [
+                    "Transport_DB",
+                    "bottom"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from eu_country_rows to Hydro_DB",
+                "from": [
+                    "eu_country_rows",
+                    "right"
+                ],
+                "to": [
+                    "Hydro_DB",
+                    "bottom"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from eu_country_rows to Heat_DB",
+                "from": [
+                    "eu_country_rows",
+                    "right"
+                ],
+                "to": [
+                    "Heat_DB",
+                    "bottom"
+                ],
+                "filter_settings": {
+                    "auto_online": true,
+                    "enabled_filter_types": {
+                        "alternative_filter": false,
+                        "scenario_filter": true
+                    }
+                }
+            },
+            {
+                "name": "from clustering_input to make_cluster_seed",
                 "from": [
                     "clustering_input",
-                    "right"
-                ],
-                "to": [
-                    "SpineOpt_final_DB",
                     "bottom"
                 ],
-                "filter_settings": {
-                    "auto_online": true,
-                    "enabled_filter_types": {
-                        "alternative_filter": false,
-                        "scenario_filter": true
-                    }
-                }
-            },
-            {
-                "name": "from scenario_run to SpineOpt_final_DB",
-                "from": [
-                    "scenario_run",
-                    "right"
-                ],
                 "to": [
-                    "SpineOpt_final_DB",
-                    "bottom"
-                ],
-                "filter_settings": {
-                    "auto_online": true,
-                    "enabled_filter_types": {
-                        "alternative_filter": false,
-                        "scenario_filter": true
-                    }
-                }
-            },
-            {
-                "name": "from Scenario_config to scenario_run",
-                "from": [
-                    "Scenario_config",
-                    "right"
-                ],
-                "to": [
-                    "scenario_run",
+                    "make_cluster_seed",
                     "left"
                 ],
                 "filter_settings": {
@@ -1076,32 +1625,14 @@
                 }
             },
             {
-                "name": "from clustering_input to run_clustering",
+                "name": "from make_cluster_seed to run_clustering",
                 "from": [
-                    "clustering_input",
+                    "make_cluster_seed",
                     "right"
                 ],
                 "to": [
                     "run_clustering",
-                    "left"
-                ],
-                "filter_settings": {
-                    "auto_online": true,
-                    "enabled_filter_types": {
-                        "alternative_filter": false,
-                        "scenario_filter": true
-                    }
-                }
-            },
-            {
-                "name": "from run_clustering to clustering_output",
-                "from": [
-                    "run_clustering",
-                    "right"
-                ],
-                "to": [
-                    "clustering_output",
-                    "left"
+                    "bottom"
                 ],
                 "filter_settings": {
                     "auto_online": true,
@@ -1118,13 +1649,13 @@
         "VRE_input": {
             "type": "Data Connection",
             "description": "",
-            "x": -433.2764227642277,
-            "y": 80.90257869501164,
+            "x": -437.28375604712767,
+            "y": 87.58146749984499,
             "file_references": [
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/VRE/VRE_costs_EUR2025/VRE_costs.csv"
+                    "path": "data/VRE_NWEU/VRE_costs_EUR2025/VRE_costs.csv"
                 },
                 {
                     "type": "path",
@@ -1142,17 +1673,17 @@
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/VRE/VRE_greenfield_installation_potentials"
+                    "path": "data/VRE_NWEU/VRE_greenfield_installation_potentials"
                 },
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/VRE/VRE_installed_capacities_2020_and_2025"
+                    "path": "data/VRE_NWEU/VRE_installed_capacities_2020_and_2025"
                 },
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/VRE/VRE_time_series"
+                    "path": "data/VRE_NWEU/VRE_time_series"
                 }
             ],
             "db_references": []
@@ -1161,7 +1692,7 @@
             "type": "Data Store",
             "description": "",
             "x": -150.44320234869016,
-            "y": 79.82165634045658,
+            "y": 84.70954831201547,
             "url": {
                 "dialect": "sqlite",
                 "host": "",
@@ -1188,19 +1719,19 @@
                 },
                 {
                     "type": "resource",
-                    "arg": "<project>/data/VRE/VRE_costs_EUR2025/VRE_costs.csv"
+                    "arg": "<project>/data/VRE_NWEU/VRE_costs_EUR2025/VRE_costs.csv"
                 },
                 {
                     "type": "resource",
-                    "arg": "<project>/data/VRE/VRE_time_series"
+                    "arg": "<project>/data/VRE_NWEU/VRE_time_series"
                 },
                 {
                     "type": "resource",
-                    "arg": "<project>/data/VRE/VRE_installed_capacities_2020_and_2025"
+                    "arg": "<project>/data/VRE_NWEU/VRE_installed_capacities_2020_and_2025"
                 },
                 {
                     "type": "resource",
-                    "arg": "<project>/data/VRE/VRE_greenfield_installation_potentials"
+                    "arg": "<project>/data/VRE_NWEU/VRE_greenfield_installation_potentials"
                 },
                 {
                     "type": "resource",
@@ -1217,13 +1748,13 @@
         "biomass_input": {
             "type": "Data Connection",
             "description": "",
-            "x": -431.9593252610416,
+            "x": -447.9886583926416,
             "y": -38.02802186271022,
             "file_references": [
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/Biomass/db_biomass_ener_mopo.csv"
+                    "path": "data/Biomass/db_biomass_ener_mopo_mixedres.csv"
                 },
                 {
                     "type": "path",
@@ -1238,8 +1769,8 @@
         "biomass_importer": {
             "type": "Tool",
             "description": "",
-            "x": -283.7475477448378,
-            "y": -33.152634444414026,
+            "x": -301.11265863740454,
+            "y": -38.49574548828069,
             "specification": "biomass_importer",
             "execute_in_work": false,
             "cmd_line_args": [
@@ -1249,7 +1780,7 @@
                 },
                 {
                     "type": "resource",
-                    "arg": "<project>/data/Biomass/db_biomass_ener_mopo.csv"
+                    "arg": "<project>/data/Biomass/db_biomass_ener_mopo_mixedres.csv"
                 },
                 {
                     "type": "resource",
@@ -1279,8 +1810,8 @@
         "Commodity_DB": {
             "type": "Data Store",
             "description": "",
-            "x": -156.5835381947748,
-            "y": -323.69064005037166,
+            "x": -150.99038663144015,
+            "y": -333.0125593225961,
             "url": {
                 "dialect": "sqlite",
                 "host": "",
@@ -1296,8 +1827,8 @@
         "ines_builder": {
             "type": "Tool",
             "description": "",
-            "x": 118.68984099848997,
-            "y": -25.048105431092388,
+            "x": 107.56953017252856,
+            "y": -34.05312709765385,
             "specification": "ines_builder",
             "execute_in_work": false,
             "cmd_line_args": [
@@ -1368,8 +1899,8 @@
         "INES_DB": {
             "type": "Data Store",
             "description": "",
-            "x": 259.2823516991665,
-            "y": -36.57314334763914,
+            "x": 265.87178150021566,
+            "y": -29.540291694340397,
             "url": {
                 "dialect": "sqlite",
                 "host": "",
@@ -1377,7 +1908,7 @@
                 "database": {
                     "type": "path",
                     "relative": true,
-                    "path": ".spinetoolbox/items/ines_db/ines_db.sqlite"
+                    "path": ".spinetoolbox/items/ines_db/INES_DB.sqlite"
                 },
                 "schema": ""
             }
@@ -1385,8 +1916,8 @@
         "INES_inputs": {
             "type": "Data Connection",
             "description": "",
-            "x": 46.822466573569294,
-            "y": 303.83002181940026,
+            "x": 56.90381672228144,
+            "y": 274.679800358622,
             "file_references": [
                 {
                     "type": "path",
@@ -1412,12 +1943,12 @@
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/version_track.yml"
+                    "path": "data/Hydro/IC1_parameters_data.xlsx"
                 },
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/Hydro/IC1_parameters_data.xlsx"
+                    "path": "data/version_track.yml"
                 }
             ],
             "file_patterns": [],
@@ -1514,12 +2045,12 @@
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/version_track.yml"
+                    "path": "data/Electricity_Transmission/Electricity_Transmission_Industry.csv"
                 },
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/Electricity_Transmission/Electricity_Transmission_Industry.csv"
+                    "path": "data/version_track.yml"
                 }
             ],
             "file_patterns": [],
@@ -1589,6 +2120,11 @@
                 {
                     "type": "path",
                     "relative": true,
+                    "path": "geodata/IC1_NWEU.geojson"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
                     "path": "data-pipelines/europe/EU_historical_inflation_ECB.csv"
                 },
                 {
@@ -1605,11 +2141,6 @@
                     "type": "path",
                     "relative": true,
                     "path": "data/version_track.yml"
-                },
-                {
-                    "type": "path",
-                    "relative": true,
-                    "path": "data/geodata/IC1.geojson"
                 }
             ],
             "file_patterns": [],
@@ -1619,7 +2150,7 @@
         "power_importer": {
             "type": "Tool",
             "description": "",
-            "x": -747.7222876632921,
+            "x": -748.7599760712852,
             "y": -227.25317621817112,
             "specification": "power_importer",
             "execute_in_work": false,
@@ -1658,7 +2189,7 @@
                 },
                 {
                     "type": "resource",
-                    "arg": "<project>/data/geodata/IC1.geojson"
+                    "arg": "<project>/geodata/IC1_NWEU.geojson"
                 },
                 {
                     "type": "resource",
@@ -1724,7 +2255,7 @@
                 },
                 {
                     "type": "resource",
-                    "arg": "<project>/data/Rdemand/other_electricity_demand_IC1.csv"
+                    "arg": "<project>/data/Rdemand/other_electricity_demand_IC1_NWEU.csv"
                 },
                 {
                     "type": "resource",
@@ -1747,17 +2278,17 @@
                 {
                     "type": "path",
                     "relative": true,
+                    "path": "data/Rdemand/other_electricity_demand_IC1_NWEU.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
                     "path": "data-pipelines/europe/userconfig.yaml"
                 },
                 {
                     "type": "path",
                     "relative": true,
                     "path": "data/version_track.yml"
-                },
-                {
-                    "type": "path",
-                    "relative": true,
-                    "path": "data/Rdemand/other_electricity_demand_IC1.csv"
                 }
             ],
             "file_patterns": [],
@@ -1819,8 +2350,8 @@
         "Heat_DB": {
             "type": "Data Store",
             "description": "",
-            "x": -130.13409846786817,
-            "y": 202.74063143404945,
+            "x": -131.79990127421308,
+            "y": 204.4064342403944,
             "url": {
                 "dialect": "sqlite",
                 "host": "",
@@ -1836,7 +2367,7 @@
         "heat_importer": {
             "type": "Tool",
             "description": "",
-            "x": -274.06033059575486,
+            "x": -276.0543896918303,
             "y": 202.6830933914852,
             "specification": "heat_importer",
             "execute_in_work": false,
@@ -1846,36 +2377,36 @@
                     "arg": "db_url@Heat_DB"
                 },
                 {
-                    "type": "resource",
-                    "arg": "<project>/data/Buildings/heat_technology_params.csv"
+                    "type": "literal",
+                    "arg": "data/Buildings/heat_technology_params.csv"
                 },
                 {
-                    "type": "resource",
-                    "arg": "<project>/data/Buildings/heat_storage_params.csv"
+                    "type": "literal",
+                    "arg": "data/Buildings/heat_storage_params.csv"
                 },
                 {
-                    "type": "resource",
-                    "arg": "<project>/data/Buildings/simplified_capacities_with_decommissioning_MW.csv"
+                    "type": "literal",
+                    "arg": "data/Buildings/simplified_capacities_with_decommissioning_MW.csv"
                 },
                 {
-                    "type": "resource",
-                    "arg": "<project>/data/Buildings/scenario_total_yearly_demands_GWh.csv"
+                    "type": "literal",
+                    "arg": "data/Buildings/scenario_total_yearly_demands_GWh.csv"
                 },
                 {
-                    "type": "resource",
-                    "arg": "<project>/data/Buildings/cop-timeseries"
+                    "type": "literal",
+                    "arg": "data/Buildings/cop-timeseries"
                 },
                 {
-                    "type": "resource",
-                    "arg": "<project>/data/Buildings/demand-timeseries"
+                    "type": "literal",
+                    "arg": "data/Buildings/demand-timeseries"
                 },
                 {
-                    "type": "resource",
-                    "arg": "<project>/data-pipelines/europe/userconfig.yaml"
+                    "type": "literal",
+                    "arg": "data-pipelines/europe/userconfig.yaml"
                 },
                 {
-                    "type": "resource",
-                    "arg": "<project>/data/version_track.yml"
+                    "type": "literal",
+                    "arg": "data/version_track.yml"
                 }
             ],
             "kill_completed_processes": false,
@@ -1884,8 +2415,8 @@
         "Industry_DB": {
             "type": "Data Store",
             "description": "",
-            "x": -131.58206838882788,
-            "y": 337.51987047278647,
+            "x": -134.132649522957,
+            "y": 337.5198704727865,
             "url": {
                 "dialect": "sqlite",
                 "host": "",
@@ -1901,7 +2432,7 @@
         "industry_importer": {
             "type": "Tool",
             "description": "",
-            "x": -269.8667035649013,
+            "x": -264.7369171669393,
             "y": 385.93824150894017,
             "specification": "industry_importer",
             "execute_in_work": false,
@@ -2000,11 +2531,44 @@
             "kill_completed_processes": false,
             "log_process_output": false
         },
+        "SpineOpt_target": {
+            "type": "Data Store",
+            "description": "",
+            "x": 557.8488467673709,
+            "y": -29.967598385620562,
+            "url": {
+                "dialect": "sqlite",
+                "host": "",
+                "port": null,
+                "database": {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/items/spineopt_target/SpineOpt_target.sqlite"
+                },
+                "schema": ""
+            }
+        },
+        "template_1": {
+            "type": "Tool",
+            "description": "",
+            "x": 443.65587154602207,
+            "y": -161.4625275834705,
+            "specification": "Load template",
+            "execute_in_work": true,
+            "cmd_line_args": [
+                {
+                    "type": "resource",
+                    "arg": "db_url@SpineOpt_target"
+                }
+            ],
+            "kill_completed_processes": true,
+            "log_process_output": false
+        },
         "Gas_DB": {
             "type": "Data Store",
             "description": "",
-            "x": -621.1733516323559,
-            "y": 194.37951059758365,
+            "x": -621.1733516323558,
+            "y": 189.3276684094248,
             "url": {
                 "dialect": "sqlite",
                 "host": "",
@@ -2031,12 +2595,12 @@
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/version_track.yml"
+                    "path": "data/Gas/Gas_Sectors_Dataset.xlsx"
                 },
                 {
                     "type": "path",
                     "relative": true,
-                    "path": "data/Gas/Gas_Sectors_Dataset_IC1_placeholder.xlsx"
+                    "path": "data/version_track.yml"
                 }
             ],
             "file_patterns": [],
@@ -2046,8 +2610,8 @@
         "gas_import": {
             "type": "Tool",
             "description": "",
-            "x": -774.2155844053252,
-            "y": 189.22720258387278,
+            "x": -774.2155844053251,
+            "y": 186.48441641396622,
             "specification": "gas_import",
             "execute_in_work": false,
             "cmd_line_args": [
@@ -2057,7 +2621,7 @@
                 },
                 {
                     "type": "resource",
-                    "arg": "<project>/data/Gas/Gas_Sectors_Dataset_IC1_placeholder.xlsx"
+                    "arg": "<project>/data/Gas/Gas_Sectors_Dataset.xlsx"
                 },
                 {
                     "type": "resource",
@@ -2066,6 +2630,94 @@
                 {
                     "type": "resource",
                     "arg": "<project>/data/version_track.yml"
+                }
+            ],
+            "kill_completed_processes": false,
+            "log_process_output": false
+        },
+        "Run_Model_Planning": {
+            "type": "Tool",
+            "description": "",
+            "x": 972.3648460214083,
+            "y": -38.965493685559366,
+            "specification": "Run SpineOpt",
+            "execute_in_work": true,
+            "cmd_line_args": [
+                {
+                    "type": "resource",
+                    "arg": "db_url@Final_SpineOpt_Model"
+                },
+                {
+                    "type": "resource",
+                    "arg": "db_url@Investment_Results"
+                }
+            ],
+            "kill_completed_processes": false,
+            "log_process_output": false
+        },
+        "Investment_Results": {
+            "type": "Data Store",
+            "description": "",
+            "x": 1103.0701079175003,
+            "y": -37.79988231749528,
+            "url": {
+                "dialect": "sqlite",
+                "host": "",
+                "port": null,
+                "database": {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/items/investment_results/Investment_Results.sqlite"
+                },
+                "schema": ""
+            }
+        },
+        "clustering_input": {
+            "type": "Tool",
+            "description": "",
+            "x": 605.100213150803,
+            "y": 185.51467556240945,
+            "specification": "clustering_input",
+            "execute_in_work": false,
+            "cmd_line_args": [
+                {
+                    "type": "resource",
+                    "arg": "db_url@Final_SpineOpt_Model"
+                }
+            ],
+            "kill_completed_processes": true,
+            "log_process_output": false
+        },
+        "run_clustering": {
+            "type": "Tool",
+            "description": "",
+            "x": 714.1965853209091,
+            "y": 227.4785602545463,
+            "specification": "run_clustering",
+            "execute_in_work": false,
+            "cmd_line_args": [],
+            "kill_completed_processes": false,
+            "log_process_output": false
+        },
+        "visualization": {
+            "type": "Tool",
+            "description": "",
+            "x": 1241.9074685183625,
+            "y": 56.93745858421164,
+            "specification": "visualization",
+            "execute_in_work": false,
+            "cmd_line_args": [
+                {
+                    "type": "resource",
+                    "arg": "db_url@Investment_Results"
+                },
+                {
+                    "type": "resource",
+                    "arg": "db_url@Final_SpineOpt_Model"
+                },
+                {
+                    "type": "resource",
+                    "arg": "<project>/Pan-European-Framework-Energy-System-Planning/src/_planning-input-processsing/scenario_config.yml"
                 }
             ],
             "kill_completed_processes": false,
@@ -2151,17 +2803,17 @@
                 {
                     "type": "path",
                     "relative": true,
+                    "path": "data/Transport/fleet.csv"
+                },
+                {
+                    "type": "path",
+                    "relative": true,
                     "path": "data-pipelines/europe/userconfig.yaml"
                 },
                 {
                     "type": "path",
                     "relative": true,
                     "path": "data/version_track.yml"
-                },
-                {
-                    "type": "path",
-                    "relative": true,
-                    "path": "data/Transport/fleet.csv"
                 }
             ],
             "file_patterns": [],
@@ -2179,11 +2831,188 @@
             ],
             "db_references": []
         },
+        "merge_spineopt": {
+            "type": "Merger",
+            "description": "",
+            "x": 695.0663803583003,
+            "y": -27.86995108907184,
+            "cancel_on_error": false
+        },
+        "Final_SpineOpt_Model": {
+            "type": "Data Store",
+            "description": "",
+            "x": 834.1092111626123,
+            "y": -36.33727869249378,
+            "url": {
+                "dialect": "sqlite",
+                "host": "",
+                "port": null,
+                "database": {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/items/final_spineopt_model/Final_SpineOpt_Model.sqlite"
+                },
+                "schema": ""
+            }
+        },
+        "Operational_Model": {
+            "type": "Data Store",
+            "description": "",
+            "x": 1003.670266066505,
+            "y": -287.8246272340425,
+            "url": {
+                "dialect": "sqlite",
+                "host": "",
+                "port": null,
+                "database": {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/items/operational_model/Operational_Model.sqlite"
+                },
+                "schema": ""
+            }
+        },
+        "Run_Dispatch": {
+            "type": "Tool",
+            "description": "",
+            "x": 1135.1692896357051,
+            "y": -287.8246272340424,
+            "specification": "Run SpineOpt",
+            "execute_in_work": true,
+            "cmd_line_args": [
+                {
+                    "type": "resource",
+                    "arg": "db_url@Operational_Model"
+                },
+                {
+                    "type": "resource",
+                    "arg": "db_url@Dispatch_Results"
+                }
+            ],
+            "kill_completed_processes": false,
+            "log_process_output": false
+        },
+        "Dispatch_Results": {
+            "type": "Data Store",
+            "description": "",
+            "x": 1335.3721400036318,
+            "y": -285.78412160080046,
+            "url": {
+                "dialect": "sqlite",
+                "host": "",
+                "port": null,
+                "database": {
+                    "type": "path",
+                    "relative": true,
+                    "path": ".spinetoolbox/items/dispatch_results/Dispatch_Results.sqlite"
+                },
+                "schema": ""
+            }
+        },
+        "fix_investments": {
+            "type": "Tool",
+            "description": "",
+            "x": 1189.3123921254128,
+            "y": -167.7313428364578,
+            "specification": "fix_investments",
+            "execute_in_work": false,
+            "cmd_line_args": [
+                {
+                    "type": "resource",
+                    "arg": "db_url@Investment_Results"
+                },
+                {
+                    "type": "resource",
+                    "arg": "db_url@Operational_Model"
+                }
+            ],
+            "kill_completed_processes": false,
+            "log_process_output": false
+        },
+        "clustering_output": {
+            "type": "Tool",
+            "description": "",
+            "x": 826.0494752484418,
+            "y": 192.13663248581184,
+            "specification": "clustering_output",
+            "execute_in_work": false,
+            "cmd_line_args": [
+                {
+                    "type": "resource",
+                    "arg": "db_url@Final_SpineOpt_Model"
+                }
+            ],
+            "kill_completed_processes": false,
+            "log_process_output": false
+        },
+        "scenario_config": {
+            "type": "Data Connection",
+            "description": "",
+            "x": 1160.8903108804072,
+            "y": 197.60148631000877,
+            "file_references": [
+                {
+                    "type": "path",
+                    "relative": true,
+                    "path": "Pan-European-Framework-Energy-System-Planning/src/_planning-input-processsing/scenario_config.yml"
+                }
+            ],
+            "file_patterns": [],
+            "directory_references": [],
+            "db_references": []
+        },
+        "scenario_setup": {
+            "type": "Tool",
+            "description": "",
+            "x": 1035.737362241622,
+            "y": 114.45390422402204,
+            "specification": "scenario_setup",
+            "execute_in_work": false,
+            "cmd_line_args": [
+                {
+                    "type": "resource",
+                    "arg": "db_url@Final_SpineOpt_Model"
+                },
+                {
+                    "type": "resource",
+                    "arg": "<project>/Pan-European-Framework-Energy-System-Planning/src/_planning-input-processsing/scenario_config.yml"
+                }
+            ],
+            "kill_completed_processes": false,
+            "log_process_output": false
+        },
+        "merge_operations": {
+            "type": "Merger",
+            "description": "",
+            "x": 905.9845011594715,
+            "y": -169.3619675590904,
+            "cancel_on_error": false
+        },
+        "feedback_extremes": {
+            "type": "Tool",
+            "description": "",
+            "x": 1321.360188113601,
+            "y": 325.8598632053911,
+            "specification": "feedback_extremes",
+            "execute_in_work": false,
+            "cmd_line_args": [
+                {
+                    "type": "resource",
+                    "arg": "db_url@Dispatch_Results"
+                },
+                {
+                    "type": "resource",
+                    "arg": "<project>/Pan-European-Framework-Energy-System-Planning/src/_planning-input-processsing/scenario_config.yml"
+                }
+            ],
+            "kill_completed_processes": false,
+            "log_process_output": false
+        },
         "commodity_input": {
             "type": "Data Connection",
             "description": "",
-            "x": -431.7766048785843,
-            "y": -319.75908946197035,
+            "x": -435.505372587474,
+            "y": -339.33511993364164,
             "file_references": [
                 {
                     "type": "path",
@@ -2208,8 +3037,8 @@
         "commodity_importer": {
             "type": "Tool",
             "description": "",
-            "x": -287.1721758862282,
-            "y": -323.83245365893816,
+            "x": -292.76532744956285,
+            "y": -334.086564858385,
             "specification": "commodity_importer",
             "execute_in_work": false,
             "cmd_line_args": [
@@ -2250,12 +3079,12 @@
                 "schema": ""
             }
         },
-        "Ines_to_spineopt": {
+        "ines_to_spineopt": {
             "type": "Tool",
             "description": "",
-            "x": 417.7250399097085,
-            "y": -33.41800319277668,
-            "specification": "Ines_to_spineopt",
+            "x": 404.71402770228985,
+            "y": -38.40575225661814,
+            "specification": "ines_to_spineopt",
             "execute_in_work": false,
             "cmd_line_args": [
                 {
@@ -2264,196 +3093,50 @@
                 },
                 {
                     "type": "resource",
-                    "arg": "db_url@SpineOpt_DB"
+                    "arg": "db_url@SpineOpt_target"
                 }
             ],
-            "kill_completed_processes": false,
+            "kill_completed_processes": true,
             "log_process_output": false
         },
-        "SpineOpt_DB": {
-            "type": "Data Store",
-            "description": "",
-            "x": 589.5890563297029,
-            "y": -26.25700250861025,
-            "url": {
-                "dialect": "sqlite",
-                "host": "",
-                "port": null,
-                "database": {
-                    "type": "path",
-                    "relative": true,
-                    "path": ".spinetoolbox/items/spineopt_db/SpineOpt_DB.sqlite"
-                },
-                "schema": ""
-            }
-        },
-        "Load template": {
+        "power_fleet_pin": {
             "type": "Tool",
             "description": "",
-            "x": 420.8505619910836,
-            "y": -164.89048281458506,
-            "specification": "Load template",
-            "execute_in_work": true,
-            "cmd_line_args": [
-                {
-                    "type": "resource",
-                    "arg": "db_url@SpineOpt_DB"
-                }
-            ],
-            "kill_completed_processes": false,
-            "log_process_output": false
-        },
-        "scenario_run": {
-            "type": "Tool",
-            "description": "",
-            "x": 697.3156079284122,
-            "y": 102.31343605951199,
-            "specification": "scenario_run",
+            "x": -690,
+            "y": -300,
+            "specification": "power_fleet_pin",
             "execute_in_work": false,
             "cmd_line_args": [
                 {
-                    "type": "resource",
-                    "arg": "db_url@SpineOpt_final_DB"
-                },
-                {
-                    "type": "resource",
-                    "arg": "<project>/_planning-input-processsing/scenario_config.yml"
+                    "type": "literal",
+                    "arg": "--apply"
                 }
             ],
             "kill_completed_processes": false,
             "log_process_output": false
         },
-        "Run SpineOpt": {
+        "eu_country_rows": {
             "type": "Tool",
             "description": "",
-            "x": 985.6029272102712,
-            "y": -20.69711978853902,
-            "specification": "Run SpineOpt",
-            "execute_in_work": true,
-            "cmd_line_args": [
-                {
-                    "type": "resource",
-                    "arg": "db_url@SpineOpt_final_DB"
-                },
-                {
-                    "type": "resource",
-                    "arg": "db_url@Investment_results_DB"
-                }
-            ],
-            "kill_completed_processes": false,
-            "log_process_output": false
-        },
-        "Investment_results_DB": {
-            "type": "Data Store",
-            "description": "",
-            "x": 1141.1508831658575,
-            "y": -15.530178200447953,
-            "url": {
-                "dialect": "sqlite",
-                "host": "",
-                "port": null,
-                "database": {
-                    "type": "path",
-                    "relative": true,
-                    "path": ".spinetoolbox/items/investment_results_db/Investment_results_DB.sqlite"
-                },
-                "schema": ""
-            }
-        },
-        "Scenario_config": {
-            "type": "Data Connection",
-            "description": "",
-            "x": 580.135776238762,
-            "y": 100.71231809541672,
-            "file_references": [
-                {
-                    "type": "path",
-                    "relative": true,
-                    "path": "_planning-input-processsing/scenario_config.yml"
-                }
-            ],
-            "file_patterns": [],
-            "directory_references": [],
-            "db_references": []
-        },
-        "clustering_input": {
-            "type": "Tool",
-            "description": "",
-            "x": 723.8434518753519,
-            "y": 237.62128872269713,
-            "specification": "clustering_input",
+            "x": -200,
+            "y": 470,
+            "specification": "eu_country_rows",
             "execute_in_work": false,
             "cmd_line_args": [
                 {
-                    "type": "resource",
-                    "arg": "db_url@SpineOpt_final_DB"
+                    "type": "literal",
+                    "arg": "--apply"
                 }
             ],
             "kill_completed_processes": false,
             "log_process_output": false
         },
-        "clustering_output": {
+        "make_cluster_seed": {
             "type": "Tool",
             "description": "",
-            "x": 971.1067797886951,
-            "y": 235.2989733368914,
-            "specification": "clustering_output",
-            "execute_in_work": false,
-            "cmd_line_args": [
-                {
-                    "type": "resource",
-                    "arg": "db_url@SpineOpt_final_DB"
-                }
-            ],
-            "kill_completed_processes": false,
-            "log_process_output": false
-        },
-        "Merger": {
-            "type": "Merger",
-            "description": "",
-            "x": 709.8850382028246,
-            "y": -19.9405909607535,
-            "cancel_on_error": false
-        },
-        "SpineOpt_final_DB": {
-            "type": "Data Store",
-            "description": "",
-            "x": 857.4454113124006,
-            "y": -25.92276824897955,
-            "url": {
-                "dialect": "sqlite",
-                "host": "",
-                "port": null,
-                "database": {
-                    "type": "path",
-                    "relative": true,
-                    "path": ".spinetoolbox/items/spineopt_final_db/SpineOpt_final_DB.sqlite"
-                },
-                "schema": ""
-            }
-        },
-        "planning_setup": {
-            "type": "Tool",
-            "description": "",
-            "x": 430.71676475227565,
-            "y": 93.72077751554146,
-            "specification": "planning_setup",
-            "execute_in_work": false,
-            "cmd_line_args": [
-                {
-                    "type": "resource",
-                    "arg": "db_url@SpineOpt_DB"
-                }
-            ],
-            "kill_completed_processes": false,
-            "log_process_output": false
-        },
-        "run_clustering": {
-            "type": "Tool",
-            "description": "",
-            "x": 859.4394704084759,
-            "y": 233.30491424081598,
-            "specification": "run_clustering",
+            "x": 660,
+            "y": 290,
+            "specification": "make_cluster_seed",
             "execute_in_work": false,
             "cmd_line_args": [],
             "kill_completed_processes": false,

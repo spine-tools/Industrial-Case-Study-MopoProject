@@ -1,0 +1,258 @@
+{
+ "parameter": "units_existing",
+ "source": "backups/spinetoolbox-items-pre-mixedres/items/power_db/power_db.sqlite",
+ "series": [
+  {
+   "entity": "CCGT-existing__BEC2",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 460.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__BEC3",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 864.0], [\"y2040\", 413.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__BEC4",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 385.0], [\"y2040\", 385.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__BEC5",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 422.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__BEC6",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 1340.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__BEC7",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 350.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__BEC8",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__NLC1",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__NLC2",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 144.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__NLC3",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 880.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__NLC5",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__NLC6",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 1296.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "CCGT-existing__NLC8",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "SCPC-existing__BEC3",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "SCPC-existing__BEC4",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 133.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "SCPC-existing__BEC5",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 815.0], [\"y2040\", 255.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "SCPC-existing__BEC6",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "SCPC-existing__BEC8",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "SCPC-existing__NLC1",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 1600.0], [\"y2040\", 1600.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "SCPC-existing__NLC3",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 632.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "SCPC-existing__NLC5",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 685.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "SCPC-existing__NLC6",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "SCPC-existing__NLC7",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 441.0], [\"y2040\", 441.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "bioST-existing__BEC4",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "bioST-existing__NLC8",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 20.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "nuclear-3-existing__BEC1",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 2600.0], [\"y2040\", 2600.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "nuclear-3-existing__BEC5",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 12.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "nuclear-3-existing__BEC6",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 2098.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "nuclear-3-existing__NLC3",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 60.0], [\"y2040\", 60.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "nuclear-3-existing__NLC7",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 515.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "oil-eng-existing__BEC4",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 37.2], [\"y2040\", 37.2], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "oil-eng-existing__BEC5",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "oil-eng-existing__BEC6",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "oil-eng-existing__BEC7",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 18.6], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "oil-eng-existing__BEC8",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 55.800000000000004], [\"y2040\", 18.6], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "wasteST-existing__BEC1",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 10.5], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "wasteST-existing__BEC2",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 45.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "wasteST-existing__BEC4",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 45.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "wasteST-existing__BEC6",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 32.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "wasteST-existing__BEC7",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 37.4], [\"y2040\", 37.4], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "wasteST-existing__BEC8",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 17.9], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  },
+  {
+   "entity": "wasteST-existing__NLC1",
+   "alternative": "Base",
+   "type": "map",
+   "value": "{\"index_type\": \"str\", \"rank\": 1, \"data\": [[\"y2030\", 0.0], [\"y2040\", 0.0], [\"y2050\", 0.0]], \"index_name\": \"year\"}"
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+{
+    "name": "power_fleet_pin",
+    "tooltype": "python",
+    "includes": [
+        "pin_power_fleet.py"
+    ],
+    "description": "Pin the NL+BE existing power fleet in Power_DB to data-pipelines/europe/_power/power_fleet_pin.json",
+    "inputfiles": [],
+    "inputfiles_opt": [],
+    "outputfiles": [],
+    "cmdline_args": [],
+    "includes_main_path": "../../../tools"
+}

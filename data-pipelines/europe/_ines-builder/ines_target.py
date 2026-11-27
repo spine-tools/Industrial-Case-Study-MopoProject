@@ -1,6 +1,5 @@
 import spinedb_api as api
 from spinedb_api import DatabaseMapping
-from spinedb_api.exception import NothingToCommit
 from spinedb_api.parameter_value import convert_map_to_table, IndexedValue
 from sqlalchemy.exc import DBAPIError
 import datetime
@@ -12,26 +11,7 @@ import json
 import yaml 
 import time as time_lib
 
-class TeeStream:
-    def __init__(self, *streams):
-        self._streams = streams
-
-    def write(self, data):
-        for stream in self._streams:
-            stream.write(data)
-            stream.flush()
-
-    def flush(self):
-        for stream in self._streams:
-            stream.flush()
-
 network_nodes = {}
-
-def commit_session_or_warn(db_map: DatabaseMapping, comment: str) -> None:
-    try:
-        db_map.commit_session(comment)
-    except NothingToCommit:
-        print(f"WARNING: {comment}: Nothing to commit. Continuing.")
 
 def nested_index_names(value, names = None, depth = 0):
     if names is None:
@@ -66,12 +46,22 @@ def add_or_update_parameter_value(db_map : DatabaseMapping, class_name : str,par
     db_map.add_or_update_parameter_value(entity_class_name=class_name,entity_byname=elements,parameter_definition_name=parameter,alternative_name=alternative,value=db_value,type=value_type)
 
 def add_alternative(db_map : DatabaseMapping,name_alternative : str) -> None:
+    # Idempotent on purpose. Spine creates every new SQLite data store with a
+    # default "Base" alternative already present, so a strict add fails
+    # immediately on a freshly created INES_DB with
+    #     RuntimeError: there's already a alternative with {'name': 'Base'}
+    # An alternative that already exists is exactly the desired end state, so
+    # treat that case as success and let any other error surface.
     _, error = db_map.add_alternative_item(name=name_alternative)
     if error is not None:
+        if "already" in str(error):
+            return
         raise RuntimeError(error)
 
 def define_polygons(config : dict, region_data : dict, on_level : str, off_level : str) -> dict:
     
+    # IC1 industrial case: BE+NL at IC1 resolution plus first-order neighbours.
+    # Uncomment the rest to restore the pan-European scope.
     countries = [
         #"AT",  # Austria
         "BE",  # Belgium
@@ -699,7 +689,8 @@ def add_power_transmission(db_map : DatabaseMapping, db_source : DatabaseMapping
                                 add_entity(db_map,entity_class_target,entity_target_name)
                                 if entity_class_target == "node":
                                     if entity_names[entity_target_building[0][1]-1] not in polygons["onshore_polygons"]:
-                                        add_parameter_value(db_map,"node","node_type","Base",entity_target_name,"commodity")
+                                        add_parameter_value(db_map,"node","node_type","Base",entity_target_name,"storage")
+                                        add_parameter_value(db_map,"node","storage_state_binding_method","Base",entity_target_name,"leap_over_within_period")
                             except:
                                 print(f"Repeated Entity {entity_class} {entity_name}, then not added")
                                 pass
@@ -855,6 +846,7 @@ def add_industrial_sector(db_map : DatabaseMapping, db_source : DatabaseMapping,
                                     # Default value when demand is defined
                                     if param_source == "demand":
                                         add_parameter_value(db_map,entity_class_target,"flow_scaling_method","Base",entity_target_name,"use_profile_directly")
+
 def add_biomass_production(db_map : DatabaseMapping, db_source : DatabaseMapping, config :dict, db_name : str) -> None:
 
     for alternative_i in db_source.get_alternative_items():
@@ -1068,7 +1060,8 @@ def add_gas_pipelines(db_map : DatabaseMapping, db_source : DatabaseMapping, con
                                 add_entity(db_map,entity_class_target,entity_target_name)
                                 if entity_class_target == "node":
                                     if entity_names[entity_target_building[0][1]-1] not in polygons["onshore_polygons"]:
-                                        add_parameter_value(db_map,"node","node_type","Base",entity_target_name,"commodity")
+                                        add_parameter_value(db_map,"node","node_type","Base",entity_target_name,"storage")
+                                        add_parameter_value(db_map,"node","storage_state_binding_method","Base",entity_target_name,"leap_over_within_period")
                             except:
                                 print(f"Repeated Entity {entity_class} {entity_name}, then not added")
                                 pass
@@ -1241,11 +1234,11 @@ def add_heat_sector(db_map : DatabaseMapping, db_source : DatabaseMapping, confi
                 # checking hard-coding conditions
                 if "technology" in entity_class_elements and definition_condition == True:
                     for index_in_class in [i for i in range(len(entity_class_elements)) if entity_class_elements[i]=="technology"]:
+                        # IC1 source data does not define units_existing for every technology
                         tech_name = entity_names[index_in_class]
                         existing_dict = region_params.get("technology", {}).get("units_existing", {}).get(tech_name, {})
                         user_tech = config["user"]["technology"].get(tech_name, {})
-                        investment_method = user_tech.get("investment_method")
-                        if investment_method == "not_allowed":
+                        if user_tech.get("investment_method") == "not_allowed":
                             if existing_dict:
                                 if sum(sum(existing_dict[poly][alternative]["data"].values()) for alternative in existing_dict.get(poly, {})) == 0.0:
                                     definition_condition *= False
@@ -1270,6 +1263,7 @@ def add_heat_sector(db_map : DatabaseMapping, db_source : DatabaseMapping, confi
                                 for param_target in param_list:
                                     entity_source_name = "__".join([entity_names[i-1] for k in param_list[param_target][2] for i in k])
                                     entity_target_name = tuple(["__".join([entity_target_names[i-1] for i in k]) for k in param_list[param_target][3]])
+                                    # IC1 userconfig does not cover every source entity
                                     user_section = config["user"].get(param_list[param_target][0], {})
                                     if entity_source_name in user_section:
                                         add_parameter_value(db_map,entity_class_target,param_target,"Base",entity_target_name,user_section[entity_source_name][param_list[param_target][1]])
@@ -1351,7 +1345,8 @@ def add_cargo_sector(db_map : DatabaseMapping, db_source : DatabaseMapping, conf
                                 add_entity(db_map,entity_class_target,entity_target_name)
                                 if entity_class_target == "node":
                                     if entity_names[entity_target_building[0][1]-1] not in polygons["onshore_polygons"]:
-                                        add_parameter_value(db_map,"node","node_type","Base",entity_target_name,"commodity")
+                                        add_parameter_value(db_map,"node","node_type","Base",entity_target_name,"storage")
+                                        add_parameter_value(db_map,"node","storage_state_binding_method","Base",entity_target_name,"leap_over_within_period")
                             except:
                                 print(f"Repeated Entity {entity_class} {entity_name}, then not added")
                                 pass
@@ -1379,18 +1374,11 @@ def add_cargo_sector(db_map : DatabaseMapping, db_source : DatabaseMapping, conf
                                         value_param = param_list[param_source][1]*value_["parsed_value"] if value_["type"] != "map" else {"type":"map","index_type":"str","index_name":"period","data":{key:param_list[param_source][1]*item for key,item in dict(json.loads(value_["value"])["data"]).items()}}
                                         add_parameter_value(db_map,entity_class_target,param_list[param_source][0],value_["alternative_name"],entity_target_name,value_param)
 
-def entity_exists(db_map, entity_class, name_tuple):
-    try:
-        db_map.get_entity_items(entity_class_name=entity_class, entity_byname=name_tuple)
-        return True
-    except:
-        return False
-
 def coupling_spatial_resolutions(db_map : DatabaseMapping, config : dict):
 
 #    mopo_resolutions = ["PECD1","PECD2","NUTS2","NUTS3"] #used for EU case study
     mopo_resolutions = ["PECD1","IC1","NUTS3"]  #used for IC1 resolution industrial case study
-    commodity_pipeline = {"elec":"power_transmission","CH4":"gas_pipelines","H2":"gas_pipelines","bio":"cargo_transport","HC":"cargo_transport","MeOH":"cargo_transport"}
+    commodity_pipeline = {"elec":"power_transmission","CH4":"gas_pipelines","H2":"gas_pipelines","bio":"cargo_transport","HC":"cargo_transport","MeOH":"cargo_transport", "CO2":"gas_sector"}
     for commodity in config["user"]["network"]:
         if config["user"]["commodity"][commodity]["status"]:
             commodity_resolution = config["user"]["pipelines"][commodity_pipeline[commodity]]["target_resolution"]
@@ -1418,26 +1406,32 @@ def coupling_spatial_resolutions(db_map : DatabaseMapping, config : dict):
                                 link_name = f"{polygon_name}_{commodity}_{target_polygon}"
                                 node_name_1 = f"{commodity}_{polygon_name}"
                                 node_name_2 = f"{commodity}_{target_polygon}"
-                                if not entity_exists(db_map, "link", (link_name,)):                                    
-                                    add_entity(db_map,"link",(link_name,))
-                                    add_entity(db_map,"node__link__node",(node_name_1,link_name,node_name_2))
-                                    add_entity(db_map,"node__link__node",(node_name_2,link_name,node_name_1))
-                                    add_parameter_value(db_map,"node__link__node","efficiency","Base",(node_name_1,link_name,node_name_2),1.0)
-                                    add_parameter_value(db_map,"node__link__node","efficiency","Base",(node_name_2,link_name,node_name_1),1.0)
+                                add_entity(db_map,"link",(link_name,))
+                                add_entity(db_map,"node__link__node",(node_name_1,link_name,node_name_2))
+                                add_entity(db_map,"node__link__node",(node_name_2,link_name,node_name_1))
+                                add_parameter_value(db_map,"node__link__node","efficiency","Base",(node_name_1,link_name,node_name_2),1.0)
+                                add_parameter_value(db_map,"node__link__node","efficiency","Base",(node_name_2,link_name,node_name_1),1.0)
                                 break
 
 def add_policy_constraints(db_map : DatabaseMapping, config : dict):
+    # The network sheets are keyed by the spatial resolution in use, so the workbook follows userconfig.
+    co2_data = pd.read_excel(config["user"]["global_constraints"].get("co2_data_file","CO2_data.xlsx"),sheet_name = None)
 
     energy_units = config["user"]["model"]["units"]["energy"]
-    multiplier = 1e-3 if energy_units == "GW" else 1.0
-    co2_values = [config["user"]["global_constraints"]["co2_annual_budget"][year]*multiplier for year in config["user"]["global_constraints"]["co2_annual_budget"]]
+    co2_values = [config["user"]["global_constraints"]["co2_annual_budget"][year]/1000 for year in config["user"]["global_constraints"]["co2_annual_budget"]]
     co2_years  = [f"y{year}" for year in config["user"]["global_constraints"]["co2_annual_budget"]]
     co2_budget = {"type":"map","index_type":"str","index_name":"period","data":dict(zip(co2_years,co2_values))}
     # Atmosphere entity is created
-    entity_name = "set"
+    entity_name = "node"
     entity_byname = ("atmosphere",)
-    add_entity(db_map,entity_name,entity_byname)
-    add_parameter_value(db_map,entity_name,"co2_max_cumulative","Base",entity_byname,co2_budget)
+    try:
+        add_entity(db_map,entity_name,entity_byname)
+        add_parameter_value(db_map,entity_name,"node_type","Base",entity_byname,"storage")
+    except:
+        print("WARNING: Node atmosphere already added")
+    add_parameter_value(db_map,entity_name,"storage_investment_method","Base",entity_byname,"not_allowed")
+    add_parameter_value(db_map,entity_name,"storages_existing","Base",entity_byname,co2_budget)
+    add_parameter_value(db_map,entity_name,"storage_capacity","Base",entity_byname,float(1000))
 
     # co2 storage entity is created
     if not config["user"]["commodity"]["CO2"]["status"]:
@@ -1447,13 +1441,175 @@ def add_policy_constraints(db_map : DatabaseMapping, config : dict):
             add_entity(db_map,entity_name,entity_byname)
         except:
             pass
-        add_parameter_value(db_map,entity_name,"storage_investment_method","Base",entity_byname,"not_allowed")
-        add_parameter_value(db_map,entity_name,"storage_retirement_method","Base",entity_byname,"not_retired")
+        add_parameter_value(db_map,entity_name,"storage_state_fix_method","Base",entity_byname,"fix_start_and_horizon_end")
+        add_parameter_value(db_map,entity_name,"commodity_price","Base",entity_byname,config["user"]["global_constraints"]["co2_transport_cost"])
+
+        entity_name = "node"
+        entity_byname = ("CO2-storage",)
+        add_entity(db_map,entity_name,entity_byname)
+        add_parameter_value(db_map,entity_name,"node_type","Base",entity_byname,"storage")
+        add_parameter_value(db_map,entity_name,"storage_investment_method","Base",entity_byname,"no_limits")
         add_parameter_value(db_map,entity_name,"storage_state_fix_method","Base",entity_byname,"fix_start")
         add_parameter_value(db_map,entity_name,"storage_state_fix","Base",entity_byname,0.0)
-        co2_storage = {"type":"map","index_type":"str","index_name":"period","data":dict(zip(co2_years,[float(config["user"]["global_constraints"]["co2_annual_sequestration"]/1000) for _ in range(3)]))}
-        add_parameter_value(db_map,entity_name,"storages_existing","Base",entity_byname,co2_storage)
+
+        for alternative in ["low","medium","high"]:
+            try:
+                add_alternative(db_map,alternative+"_CO2")
+            except:
+                pass
+            data_values = {}
+            for year in [2030,2040,2050]:   
+                data_values[f"y{str(year)}"] = co2_data["storage"].loc[co2_data["storage"][(co2_data["storage"]["year"]==year)].index,alternative].sum()*1000
+            co2_storage = {"type":"map","index_type":"str","index_name":"period","data":data_values}
+            add_parameter_value(db_map,entity_name,"storages_fix_cumulative",alternative+"_CO2",entity_byname,co2_storage)
         add_parameter_value(db_map,entity_name,"storage_capacity","Base",entity_byname,float(1000))
+
+        entity_name = "unit"
+        entity_byname = ("CO2-injection",)
+        add_entity(db_map,entity_name,entity_byname)
+        entity_name = "node__to_unit"
+        entity_byname = ("CO2","CO2-injection")
+        add_entity(db_map,entity_name,entity_byname)
+        entity_name = "node__to_unit"
+        entity_byname = ("atmosphere","CO2-injection")
+        add_entity(db_map,entity_name,entity_byname)
+        entity_name = "unit__to_node"
+        entity_byname = ("CO2-injection","CO2-storage")
+        add_entity(db_map,entity_name,entity_byname)
+        add_parameter_value(db_map,entity_name,"other_operational_cost","Base",entity_byname,config["user"]["global_constraints"]["co2_sequestration_cost"])
+        entity_name = "unit_flow__unit_flow"
+        entity_byname = ("CO2-injection","CO2-storage","CO2","CO2-injection")
+        add_entity(db_map,entity_name,entity_byname)
+        add_parameter_value(db_map,entity_name,"equality_ratio","Base",entity_byname,1.0)
+        entity_byname = ("CO2-injection","CO2-storage","atmosphere","CO2-injection")
+        add_entity(db_map,entity_name,entity_byname)
+        add_parameter_value(db_map,entity_name,"equality_ratio","Base",entity_byname,1.0)
+
+    elif config["user"]["pipelines"]["gas_sector"]["status"]:
+
+        db_name = "gas_sector"
+        if isinstance(config["user"]["pipelines"][db_name]["target_resolution"],dict):
+                on_target_resolution = config["user"]["pipelines"][db_name]["target_resolution"]["on"]
+                off_target_resolution = config["user"]["pipelines"][db_name]["target_resolution"]["off"]
+        else:
+            on_target_resolution = config["user"]["pipelines"][db_name]["target_resolution"]
+            off_target_resolution = None
+        
+        polygons = define_polygons(config["user"],config["transformer"],on_target_resolution,off_target_resolution)
+
+        # A reservoir reachable from several regions is one physical site, so its node is shared between them.
+        co2_storage_nodes = set()
+
+        for country in polygons["onshore_polygons"]:
+            
+            entity_name = "node"
+            entity_byname = ("CO2_"+country,)
+            try:
+                add_entity(db_map,entity_name,entity_byname)
+            except:
+                pass
+            add_parameter_value(db_map,entity_name,"storage_state_fix_method","Base",entity_byname,"fix_start_and_horizon_end")
+
+            from_nodes = co2_data["network_to_storage"][co2_data["network_to_storage"]["from"]==country]["to"].tolist()
+            nodes = co2_data["storage"][(co2_data["storage"]["node"] == country)|(co2_data["storage"]["node"].isin(from_nodes))]["node"].unique()
+            
+            for node in nodes:
+                # A storage site is reachable from several regions, so the tariff must match this region's link.
+                links = co2_data["network_to_storage"][(co2_data["network_to_storage"]["to"]==node) & (co2_data["network_to_storage"]["from"]==country)]
+                if not links.empty:
+                    tariff = links.at[links.index[0],"tariff"]
+                    storage_name = "CO2-storage-"+node
+                else: 
+                    tariff = 0.0
+                    storage_name = "CO2-storage"+"_"+country
+                injection_name = "CO2-injection-"+node+"_"+country
+
+                entity_name = "node"
+                entity_byname = (storage_name,)
+                if storage_name not in co2_storage_nodes:
+                    co2_storage_nodes.add(storage_name)
+                    add_entity(db_map,entity_name,entity_byname)
+                    add_parameter_value(db_map,entity_name,"node_type","Base",entity_byname,"storage")
+                    add_parameter_value(db_map,entity_name,"storage_investment_method","Base",entity_byname,"no_limits")
+                    add_parameter_value(db_map,entity_name,"storage_state_fix_method","Base",entity_byname,"fix_start")
+                    add_parameter_value(db_map,entity_name,"storage_state_fix","Base",entity_byname,0.0)
+
+                    for alternative in ["low","medium","high"]:
+                        try:
+                            add_alternative(db_map,alternative+"_CO2")
+                        except:
+                            pass
+                        data_values = {}
+                        for year in [2030,2040,2050]:
+                            data_values[f"y{str(year)}"] = co2_data["storage"].at[co2_data["storage"][(co2_data["storage"]["node"]==node)&(co2_data["storage"]["year"]==year)].index[0],alternative]*1000
+                        co2_storage = {"type":"map","index_type":"str","index_name":"period","data":data_values}
+                        add_parameter_value(db_map,entity_name,"storages_fix_cumulative",alternative+"_CO2",entity_byname,co2_storage)
+                    add_parameter_value(db_map,entity_name,"storage_capacity","Base",entity_byname,float(1000))
+        
+                entity_name = "unit"
+                entity_byname = (injection_name,)
+                add_entity(db_map,entity_name,entity_byname)
+                entity_name = "node__to_unit"
+                entity_byname = ("CO2_"+country,injection_name)
+                add_entity(db_map,entity_name,entity_byname)
+                entity_name = "node__to_unit"
+                entity_byname = ("atmosphere",injection_name)
+                add_entity(db_map,entity_name,entity_byname)
+                entity_name = "unit__to_node"
+                entity_byname = (injection_name,storage_name)
+                add_entity(db_map,entity_name,entity_byname)
+                if tariff > 0.0:
+                    add_parameter_value(db_map,entity_name,"other_operational_cost","Base",entity_byname,tariff)
+                entity_name = "unit_flow__unit_flow"
+                entity_byname = (injection_name,storage_name,"CO2_"+country,injection_name)
+                add_entity(db_map,entity_name,entity_byname)
+                add_parameter_value(db_map,entity_name,"equality_ratio","Base",entity_byname,1.0)
+                entity_byname = (injection_name,storage_name,"atmosphere",injection_name)
+                add_entity(db_map,entity_name,entity_byname)
+                add_parameter_value(db_map,entity_name,"equality_ratio","Base",entity_byname,1.0)
+
+            if config["user"]["network"]["CO2"]["status"]:
+                for index_ in co2_data["network"][(co2_data["network"]["from"]==country) | (co2_data["network"]["to"]==country)].index:
+
+                    from_node = co2_data["network"].at[index_,"from"]
+                    to_node = co2_data["network"].at[index_,"to"]
+                    tariff = co2_data["network"].at[index_,"tariff"]
+                    node1 = "CO2_"+from_node
+                    node2 = "CO2_"+to_node
+                    link_name = from_node+"_CO2_"+to_node
+
+                    if from_node != to_node:
+                        if from_node not in polygons["onshore_polygons"] or to_node not in polygons["onshore_polygons"]:
+                            conflicting_node = from_node if from_node not in polygons["onshore_polygons"] else to_node
+                            if config["user"]["network"]["CO2"]["interconnection_out_model"]:
+                                try:
+                                    add_entity(db_map,"node",("CO2_"+conflicting_node,))
+                                    add_parameter_value(db_map,"node","node_type","Base",("CO2_"+conflicting_node,),"storage")
+                                    add_parameter_value(db_map,"node","storage_state_binding_method","Base",("CO2_"+conflicting_node,),"leap_over_within_period")
+                                except:
+                                    pass
+                                definition_condition = True
+                            else:
+                                definition_condition = False
+                        else:
+                            definition_condition = True
+
+                        if definition_condition:
+                            # The CO2 `network` sheet is an UNDIRECTED edge list (one row per corridor,
+                            # symmetric km and tariff). With `bidirectional: true` in userconfig the
+                            # reverse link to_from is written too, as CH4/H2 already have
+                            # (docs/FINDING_co2_network_unidirectional.md).
+                            directions = [(node1,link_name,node2)]
+                            if config["user"]["network"]["CO2"].get("bidirectional", False):
+                                directions.append((node2,to_node+"_CO2_"+from_node,node1))
+                            for n_from,l_name,n_to in directions:
+                                try:
+                                    add_entity(db_map,"link",(l_name,))
+                                    add_entity(db_map,"node__link__node",(n_from,l_name,n_to))
+                                    add_parameter_value(db_map,"node__link__node","efficiency","Base",(n_from,l_name,n_to),1.0)
+                                    add_parameter_value(db_map,"node__link__node","operational_cost","Base",(n_from,l_name,n_to),tariff)
+                                except:
+                                    pass
 
 def units_modification(db_map : DatabaseMapping, config : dict):
     energy_units = config["user"]["model"]["units"]["energy"]
@@ -1528,205 +1684,192 @@ def units_modification(db_map : DatabaseMapping, config : dict):
 
 def main():
 
-    original_stdout = sys.stdout
-    original_stderr = sys.stderr
-    log_file = open("ines_target.log", "w", encoding="utf-8")
-    sys.stdout = TeeStream(original_stdout, log_file)
-    sys.stderr = TeeStream(original_stderr, log_file)
+    url_db_out = sys.argv[1]
+    url_db_com = sys.argv[2]
+    url_db_pow = sys.argv[3]
+    url_db_vre = sys.argv[4]
+    url_db_tra = sys.argv[5]
+    url_db_hyd = sys.argv[6]
+    url_db_dem = sys.argv[7]
+    url_db_ind = sys.argv[8]
+    url_db_ind2= sys.argv[9]
+    url_db_bio = sys.argv[10]
+    url_db_gas = sys.argv[11]
+    url_db_veh = sys.argv[12]
+    url_db_hea = sys.argv[13]
+    url_db_car = sys.argv[14]
 
-    try:
+    with open("ines_structure.json", 'r') as f:
+        ines_spec = json.load(f)
 
-        url_db_out = sys.argv[1]
-        url_db_com = sys.argv[2]
-        url_db_pow = sys.argv[3]
-        url_db_vre = sys.argv[4]
-        url_db_tra = sys.argv[5]
-        url_db_hyd = sys.argv[6]
-        url_db_dem = sys.argv[7]
-        url_db_ind = sys.argv[8]
-        url_db_ind2= sys.argv[9]
-        url_db_bio = sys.argv[10]
-        url_db_gas = sys.argv[11]
-        url_db_veh = sys.argv[12]
-        url_db_hea = sys.argv[13]
-        url_db_car = sys.argv[14]
+    config = {"sys":yaml.safe_load(open("sysconfig.yaml", "rb")),"user":yaml.safe_load(open(sys.argv[15], "rb"))}
+    config["transformer"] = pd.read_excel("region_transformation.xlsx",sheet_name=None)
 
-        with open("ines_structure.json", 'r') as f:
-            ines_spec = json.load(f)
+    with DatabaseMapping(url_db_out) as db_map:
 
-        config = {"sys":yaml.safe_load(open("sysconfig.yaml", "rb")),"user":yaml.safe_load(open(sys.argv[15], "rb"))}
-        config["transformer"] = pd.read_excel("region_transformation.xlsx",sheet_name=None)
-
-        with DatabaseMapping(url_db_out) as db_map:
-
-            # Importing Map
-            api.import_data(db_map,
-                        entity_classes=ines_spec["entity_classes"],
-                        parameter_value_lists=ines_spec["parameter_value_lists"],
-                        parameter_definitions=ines_spec["parameter_definitions"],
-                        )
-            add_superclass_subclass(db_map,"unit_flow","node__to_unit")
-            add_superclass_subclass(db_map,"unit_flow","unit__to_node")
-            print("ines_map_added")
-            db_map.refresh_session()
-            commit_session_or_warn(db_map,"ines_map_added")
-            
-            # Base alternative
-            add_alternative(db_map,"Base")
-
-            # Timeline Structure
-            add_timeline(db_map,config)
-            print("timeline_added")
-            commit_session_or_warn(db_map,"timeline_added")
-
-            # Power Sector Representation
-            db_name = "power_sector"
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_pow) as db_pow:
-                    db_pow.fetch_all()
-                    add_power_sector(db_map,db_pow,config,db_name)
-                    print("power_sector_added")
-                    commit_session_or_warn(db_map,"power_sector_added")
-
-            # Hydro Systems
-            db_name = "hydro_systems"
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_hyd) as db_hyd:
-                    db_hyd.fetch_all()
-                    add_hydro(db_map,db_hyd,config,db_name)
-                    print("hydro_systems_added")
-                    try:
-                        db_map.commit_session("hydro_systems_added")
-                    except:
-                        print("Error committing the hydro pipeline, likely because you are modeling countries with no hydroelectric systems")
-            
-            # Power VRE Representation
-            db_name = "vre"
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_vre) as db_vre:
-                    db_vre.fetch_all()
-                    add_vre_sector(db_map,db_vre,config,db_name)
-                    print("vre_added")
-                    commit_session_or_warn(db_map,"vre_added")
-
-            db_name = "power_transmission"
-            # Power Transmission Representation
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_tra) as db_tra:
-                    db_tra.fetch_all()
-                    add_power_transmission(db_map,db_tra,config,db_name)
-                    print("power_transmission_added")
-                    try:
-                        db_map.commit_session("power_transmission_added")
-                    except:
-                        print("Error committing the transmission pipeline, likely because you have modeled one country")
-
-            db_name = "residual_demand"
-            # Electricity Demand
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_dem) as db_dem:
-                    db_dem.fetch_all()
-                    add_electricity_demand(db_map,db_dem,config,db_name)
-                    print("electricity_demand_added")
-                    commit_session_or_warn(db_map,"electricity_demand_added")
-
-            #  Industrial Sector
-            db_name = "industrial_sector"
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_ind) as db_ind:
-                    db_ind.fetch_all()
-                    add_industrial_sector(db_map,db_ind,config,db_name)
-                    print("industrial_sector_added")
-                    commit_session_or_warn(db_map,"industrial_sector_added")
-            db_name = "other_industrial_sector"
-            if config["user"]["pipelines"][db_name]["status"]:   
-                with DatabaseMapping(url_db_ind2) as db_ind:
-                    db_ind.fetch_all()
-                    add_industrial_sector(db_map,db_ind,config,db_name)
-                    print("other_industrial_sector_added")
-                    commit_session_or_warn(db_map,"other_industrial_sector_added")
-
-            #  Biomass Sector
-            db_name = "biomass_production"
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_bio) as db_bio:
-                    db_bio.fetch_all()
-                    add_biomass_production(db_map,db_bio,config,db_name)
-                    print("biomass_sector_added")
-                    commit_session_or_warn(db_map,"biomass_sector_added")
-
-            # Gas Sector Representation
-            db_name = "gas_sector"
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_gas) as db_gas:
-                    db_gas.fetch_all()
-                    add_gas_sector(db_map,db_gas,config,db_name)
-                    print("gas_sector_added")
-                    commit_session_or_warn(db_map,"gas_sector_added")
+        # Importing Map
+        api.import_data(db_map,
+                    entity_classes=ines_spec["entity_classes"],
+                    parameter_value_lists=ines_spec["parameter_value_lists"],
+                    parameter_definitions=ines_spec["parameter_definitions"],
+                    )
+        add_superclass_subclass(db_map,"unit_flow","node__to_unit")
+        add_superclass_subclass(db_map,"unit_flow","unit__to_node")
+        print("ines_map_added")
+        db_map.refresh_session()
+        db_map.commit_session("ines_map_added")
         
-                    db_name = "gas_pipelines"
-                    if config["user"]["pipelines"][db_name]["status"]:
-                        add_gas_pipelines(db_map,db_gas,config,db_name)
-                        print("gas_pipelines_added")
-                        try:
-                            db_map.commit_session("gas_pipelines_added")
-                        except:
-                            print("Error committing the gas pipelines, likely because you have modeled one country")
-            
-            # Transport Representation
-            db_name = "transport_sector"
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_veh) as db_veh:
-                    db_veh.fetch_all()
-                    add_transport(db_map,db_veh,config,db_name)
-                    print("transport_added")
-                    commit_session_or_warn(db_map,"transport_added")
+        # Base alternative
+        add_alternative(db_map,"Base")
 
-            # Heat Sector Representation
-            db_name = "heat_sector"
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_hea) as db_hea:
-                    db_hea.fetch_all()
-                    add_heat_sector(db_map,db_hea,config,db_name)
-                    print("heat_sector_added")
-                    commit_session_or_warn(db_map,"heat_sector_added")
+        # Timeline Structure
+        add_timeline(db_map,config)
+        print("timeline_added")
+        db_map.commit_session("timeline_added")
 
-            # Cargo Sector Representation
-            db_name = "cargo_transport"
-            if config["user"]["pipelines"][db_name]["status"]:
-                with DatabaseMapping(url_db_car) as db_car:
-                    db_car.fetch_all()
-                    add_cargo_sector(db_map,db_car,config,db_name)
-                    print("cargo_sector_added")
+        # Power Sector Representation
+        db_name = "power_sector"
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_pow) as db_pow:
+                db_pow.fetch_all()
+                add_power_sector(db_map,db_pow,config,db_name)
+                print("power_sector_added")
+                db_map.commit_session("power_sector_added")
+
+        # Hydro Systems
+        db_name = "hydro_systems"
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_hyd) as db_hyd:
+                db_hyd.fetch_all()
+                add_hydro(db_map,db_hyd,config,db_name)
+                print("hydro_systems_added")
+                try:
+                    db_map.commit_session("hydro_systems_added")
+                except:
+                    print("Error committing the hydro pipeline, likely because you are modeling countries with no hydroelectric systems")
+        
+        # Power VRE Representation
+        db_name = "vre"
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_vre) as db_vre:
+                db_vre.fetch_all()
+                add_vre_sector(db_map,db_vre,config,db_name)
+                print("vre_added")
+                db_map.commit_session("vre_added")
+
+        db_name = "power_transmission"
+        # Power Transmission Representation
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_tra) as db_tra:
+                db_tra.fetch_all()
+                add_power_transmission(db_map,db_tra,config,db_name)
+                print("power_transmission_added")
+                try:
+                    db_map.commit_session("power_transmission_added")
+                except:
+                    print("Error committing the transmission pipeline, likely because you have modeled one country")
+
+        db_name = "residual_demand"
+        # Electricity Demand
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_dem) as db_dem:
+                db_dem.fetch_all()
+                add_electricity_demand(db_map,db_dem,config,db_name)
+                print("electricity_demand_added")
+                db_map.commit_session("electricity_demand_added")
+
+        #  Industrial Sector
+        db_name = "industrial_sector"
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_ind) as db_ind:
+                db_ind.fetch_all()
+                add_industrial_sector(db_map,db_ind,config,db_name)
+                print("industrial_sector_added")
+                db_map.commit_session("industrial_sector_added")
+        db_name = "other_industrial_sector"
+        if config["user"]["pipelines"][db_name]["status"]:   
+            with DatabaseMapping(url_db_ind2) as db_ind:
+                db_ind.fetch_all()
+                add_industrial_sector(db_map,db_ind,config,db_name)
+                print("other_industrial_sector_added")
+                db_map.commit_session("other_industrial_sector_added")
+
+        #  Biomass Sector
+        db_name = "biomass_production"
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_bio) as db_bio:
+                db_bio.fetch_all()
+                add_biomass_production(db_map,db_bio,config,db_name)
+                print("biomass_sector_added")
+                db_map.commit_session("biomass_sector_added")
+
+        # Gas Sector Representation
+        db_name = "gas_sector"
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_gas) as db_gas:
+                db_gas.fetch_all()
+                add_gas_sector(db_map,db_gas,config,db_name)
+                print("gas_sector_added")
+                db_map.commit_session("gas_sector_added")
+    
+                db_name = "gas_pipelines"
+                if config["user"]["pipelines"][db_name]["status"]:
+                    add_gas_pipelines(db_map,db_gas,config,db_name)
+                    print("gas_pipelines_added")
                     try:
-                        db_map.commit_session("cargo_sector_added")
+                        db_map.commit_session("gas_pipelines_added")
                     except:
-                        print("Error committing the cargo pipeline, likely because you have modeled one country")
+                        print("Error committing the gas pipelines, likely because you have modeled one country")
+        
+        # Transport Representation
+        db_name = "transport_sector"
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_veh) as db_veh:
+                db_veh.fetch_all()
+                add_transport(db_map,db_veh,config,db_name)
+                print("transport_added")
+                db_map.commit_session("transport_added")
 
-            # Commodity Nodes parameters
-            with DatabaseMapping(url_db_com) as db_com:
-                db_com.fetch_all()
-                add_nodes(db_map,db_com,config)
-                print("nodes_added")
-                commit_session_or_warn(db_map,"nodes_added")
+        # Heat Sector Representation
+        db_name = "heat_sector"
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_hea) as db_hea:
+                db_hea.fetch_all()
+                add_heat_sector(db_map,db_hea,config,db_name)
+                print("heat_sector_added")
+                db_map.commit_session("heat_sector_added")
 
-            # Coupling sector with different resolution
-            coupling_spatial_resolutions(db_map, config)
-            # Policy Constraints
-            add_policy_constraints(db_map,config)
-            print("policy_constraints")
-            # Policy Constraints
-            units_modification(db_map,config)
-            print("units_modification")
-            try:
-                db_map.commit_session("units_modification")
-            except:
-                print("Error committing the units modification, likely you are using the same units as the source databases")
+        # Cargo Sector Representation
+        db_name = "cargo_transport"
+        if config["user"]["pipelines"][db_name]["status"]:
+            with DatabaseMapping(url_db_car) as db_car:
+                db_car.fetch_all()
+                add_cargo_sector(db_map,db_car,config,db_name)
+                print("cargo_sector_added")
+                try:
+                    db_map.commit_session("cargo_sector_added")
+                except:
+                    print("Error committing the cargo pipeline, likely because you have modeled one country")
 
-    finally:
-        sys.stdout = original_stdout
-        sys.stderr = original_stderr
-        log_file.close()
+        # Commodity Nodes parameters
+        with DatabaseMapping(url_db_com) as db_com:
+            db_com.fetch_all()
+            add_nodes(db_map,db_com,config)
+            print("nodes_added")
+            db_map.commit_session("nodes_added")
+
+        # Coupling sector with different resolution
+        coupling_spatial_resolutions(db_map, config)
+        # Policy Constraints
+        add_policy_constraints(db_map,config)
+        print("policy_constraints")
+        # Policy Constraints
+        units_modification(db_map,config)
+        print("units_modification")
+        try:
+            db_map.commit_session("units_modification")
+        except:
+            print("Error committing the units modification, likely you are using the same units as the source databases")
 
 if __name__ == "__main__":
     main()

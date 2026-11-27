@@ -136,13 +136,39 @@ Now you can open spinetoolbox and work on things. If you only work in the data a
 For more info on this workflow and how to fix merge errors, see the detailed version we wrote for Tulipa contributors [here.](https://tulipaenergy.github.io/TulipaEnergyModel.jl/stable/90-contributing/91-developer/#Contributing-Workflow)
 
 
-# TODO Running the Workflow
+# Running the Workflow
 
-- Launch spinetoolbox
-- Tooling order
-- Avoiding rerunning from raw
-- Scenario filters
-- Config files
+## Input data
+
+Two datasets are needed besides this repository:
+
+1. **Industrial case input data** (this case): https://doi.org/10.5281/zenodo.24565514.
+   Unzip `IC1_mixedres_input_data.zip` in the repository root; it fills `data/`.
+2. **Pan-European dataset** v0.6: https://doi.org/10.5281/zenodo.23496362.
+   Unzip `Pan-European_Energy_System_Dataset.zip` into a folder `Pan-European_Energy_System_Dataset/`
+   in the repository root (or elsewhere and set `eu_case_dir` in `data-pipelines/europe/userconfig.yaml`).
+   It already contains the built sector databases; its importers do not need to be run. Only
+   `.spinetoolbox/items/{heat_db,transport_db,industry_db,other_industry_db,hydro_db}` are used.
+
+The country-level regions (DE, DK, NO, UK; all `countries` except BE/NL) are taken from the Pan-European dataset.
+
+## Order
+
+Run the Spine Toolbox items in this order:
+
+1. All importers (`*_importer`, `gas_import`, `cargo_import`).
+2. `power_fleet_pin` - fixes the NL+BE existing power fleet to `data-pipelines/europe/_power/power_fleet_pin.json`
+   (`power_DB.py` draws retirement years at random).
+3. `eu_country_rows` - copies the non-BE/NL country rows from the EU case into the sector databases.
+4. `ines_builder`, then `template_1`, then `ines_to_spineopt`.
+5. `merge_spineopt` - copies SpineOpt_target into Final_SpineOpt_Model (rerun it for a fresh model).
+6. `clustering_input`, `make_cluster_seed`, `run_clustering`, `clustering_output`. The representative days are
+   set by `representative_days` in `scenario_config.yml`.
+7. `scenario_setup` - applies `scenario_config.yml`.
+8. `Run_Model_Planning`.
+
+Model settings are in `data-pipelines/europe/userconfig.yaml` (regions, CO2 data file) and
+`Pan-European-Framework-Energy-System-Planning/src/_planning-input-processsing/scenario_config.yml` (scenario).
 
 # Note to developers
 
